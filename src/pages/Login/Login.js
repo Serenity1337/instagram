@@ -35,6 +35,7 @@ export const Login = () => {
     users.map((user) => {
       userData.userNames.push(user.username)
       userData.userEmails.push(user.email)
+      return 0
     })
     console.log(userData)
     const emailFound = userData.userEmails.includes(emailInput)

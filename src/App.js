@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import './App.css'
 import { BrowserRouter, Switch, Route } from 'react-router-dom'
 
 import Register from './pages/Register'
 import Login from './pages/Login'
-import Profile from './pages/Profile'
+import Feed from './pages/Feed'
 
 function App() {
   return (
@@ -22,12 +22,7 @@ function App() {
           exact={true}
           label='Register'
         ></Route>
-        <Route
-          path={`/`}
-          component={Profile}
-          exact={true}
-          label='Profile'
-        ></Route>
+        <Route path={`/`} component={Feed} exact={true} label='Feed'></Route>
       </Switch>
     </BrowserRouter>
   )

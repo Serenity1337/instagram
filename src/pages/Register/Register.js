@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import classes from './Register.module.scss'
 import { Link } from 'react-router-dom'
 
-
 export const Register = () => {
   const [emailInput, setemailInput] = useState('')
 
@@ -70,6 +69,7 @@ export const Register = () => {
     users.map((user) => {
       userData.userNames.push(user.username)
       userData.userEmails.push(user.email)
+      return 0
     })
     console.log(userData)
     const dupeName = userData.userNames.includes(nameInput)
@@ -103,7 +103,7 @@ export const Register = () => {
             password: passwordInput,
             username: nameInput,
             email: emailInput,
-            avatar: 'images/test.jpg'
+            avatar: 'test.jpg',
           }
           fetch('http://localhost:4000/users', {
             method: 'POST',

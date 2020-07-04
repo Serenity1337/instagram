@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react'
 import classes from './Post.module.scss'
+import Postcomment from '../Postcomment'
 export const Post = (props) => {
   const [postUser, setpostUser] = useState({})
   const [comments, setcomments] = useState([])
   const [commentState, setcommentState] = useState('')
   const [liked, setliked] = useState(false)
   const [post, setpost] = useState({})
+  const commentInput = React.createRef()
   useEffect(() => {
     const poster =
       props.users.filter((user) => props.post.poster !== user)[0] || {}
 
     setpostUser(poster)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.users])
   useEffect(() => {
     setcomments(props.post.comments)
@@ -22,20 +25,20 @@ export const Post = (props) => {
     } else {
       setliked(false)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   const commentInputHandler = (event) => {
     setcommentState(event.target.value)
   }
-  const commentFormHandler = (event) => {
-    event.preventDefault()
+  const commentPostHandler = () => {
     const newComment = {
       caption: commentState,
       poster: props.currentUserName,
       likedBy: [],
       likes: 0,
       id: Date.now(),
+      replies: [],
     }
-    event.target.elements.commentInput.value = ''
     const commentsArr = [...comments, newComment]
     const postCopy = { ...props.post }
     postCopy.comments = commentsArr
@@ -48,17 +51,18 @@ export const Post = (props) => {
     }).then((header) => {
       if (header.ok) {
         setcomments(commentsArr)
+        setpost(postCopy)
         return header.json()
       } else {
         console.log(header)
       }
     })
+    commentInput.current.value = ''
   }
 
   const likeBtnHandler = () => {
     const postClone = { ...props.post }
     const userLikedArr = [...props.post.likedBy, props.currentUserName]
-    console.log(props.post)
     const likes = post.likes + 1
     postClone.likes = likes
     postClone.likedBy = userLikedArr
@@ -85,14 +89,10 @@ export const Post = (props) => {
     const userLikedArr = postClone.likedBy.filter(
       (user) => user !== props.currentUserName
     )
-    console.log(userLikedArr)
-    console.log(props.post)
     const likes = post.likes - 1
     postClone.likes = likes
     postClone.likedBy = userLikedArr
     setliked(false)
-
-    console.log(postClone)
 
     fetch('http://localhost:4000/posts/' + props.post.id, {
       method: 'PUT',
@@ -149,25 +149,33 @@ export const Post = (props) => {
         <div className={classes.likeSection}>
           <span className={classes.counter}>{post.likes} likes</span>
         </div>
-        <div className={classes.comments}>
-          {comments.map((comment, index) => (
-            <div className={classes.commDiv} key={index}>
-              <span className={classes.bold}>{comment.poster}</span>
-              <span>{comment.caption}</span>
-            </div>
-          ))}
-        </div>
+
+        {comments.map((comment, commentIndex) => (
+          <Postcomment
+            key={commentIndex}
+            comment={comment}
+            comments={comments}
+            post={post}
+            commentIndex={commentIndex}
+            setcomments={setcomments}
+            users={props.users}
+          ></Postcomment>
+        ))}
+
         <div className={classes.addAComment}>
-          <form onSubmit={commentFormHandler}>
-            <input
-              className={classes.inputAcomment}
-              type='text'
-              placeholder='Add a comment...'
-              onChange={commentInputHandler}
-              name='commentInput'
-            />
-            <i className='fas fa-ellipsis-h'></i>
-          </form>
+          <input
+            className={classes.inputAComment}
+            type='text'
+            placeholder='Add a comment...'
+            onChange={commentInputHandler}
+            name='commentInput'
+            ref={commentInput}
+          />
+          <div className={classes.postAComment} onClick={commentPostHandler}>
+            Post
+          </div>
+          <div className={classes.line}></div>
+          {/* <i className='fas fa-ellipsis-h'></i> */}
         </div>
       </div>
     </section>

@@ -5,17 +5,6 @@ header {
   width: 100vw;
   border-bottom: 1px solid rgba(0, 0, 0, 0.0975);
 }
-.bold {
-  font-family: 'sans-serif';
-  font-weight: bold;
-  margin: 10px 10px 10px 15px;
-}
-.commDiv {
-  font-size: 16px;
-  font-family: 'sans-serif';
-  display: block;
-  margin: 10px 10px 10px 0px;
-}
 .headerContainer {
   display: flex;
   align-items: center;
@@ -117,6 +106,7 @@ header {
   justify-content: space-between;
   align-items: center;
   margin: 15px;
+  padding-top: 20px;
 }
 .inputAComment {
   border: none;
@@ -125,7 +115,13 @@ header {
   font-size: 18px;
   width: 100%;
   background-color: #fafafa;
+  padding-top: 10px;
 }
+.postAComment {
+  color: blue;
+  cursor: pointer;
+}
+
 @media (max-width: 980px) {
   .icons {
     margin-right: 0px;

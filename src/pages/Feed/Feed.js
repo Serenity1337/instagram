@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import classes from './Profile.module.scss'
+import classes from './Feed.module.scss'
 import axios from 'axios'
 import Post from '../../components/Post'
 
-export const Profile = () => {
+export const Feed = () => {
   const [posts, setposts] = useState([])
 
   const [postFormState, setpostFormState] = useState(false)
@@ -16,12 +16,6 @@ export const Profile = () => {
 
   const [users, setusers] = useState([])
 
-  const checkIfLoggedIn = () => {
-    if (!currentUserName) {
-      window.location.href = 'http://localhost:3000/login'
-    }
-  }
-  checkIfLoggedIn()
   useEffect(() => {
     const fetchPosts = async () => {
       const response = await fetch('http://localhost:4000/posts')
@@ -35,6 +29,12 @@ export const Profile = () => {
       setusers(usersResponse)
     }
     fetchUsers()
+    const checkIfLoggedIn = () => {
+      if (!currentUserName) {
+        window.location.href = 'http://localhost:3000/login'
+      }
+    }
+    checkIfLoggedIn()
   }, [])
 
   const postHandler = () => {
@@ -47,8 +47,10 @@ export const Profile = () => {
   const captionHandler = (event) => {
     setcaptionState(event.target.value)
   }
+  const cancelPostFormHandler = () => {
+    setpostFormState(false)
+  }
   const postFormHandler = (event) => {
-    event.preventDefault()
     const data = new FormData()
     data.append('file', fileState)
     axios.post('http://localhost:8000/upload', data, {}).then((res) => {
@@ -71,10 +73,8 @@ export const Profile = () => {
     }).then((header) => {
       if (header.ok) {
         setpostFormState(false)
-        const postsArr = [...posts]
-
-        console.log(postsArr)
-        setposts(postsArr.push(post))
+        const postsArr = [...posts, post]
+        setposts(postsArr)
         return header.json()
       } else {
         console.log(header)
@@ -85,10 +85,23 @@ export const Profile = () => {
     <>
       <header>
         {postFormState ? (
-          <form onSubmit={postFormHandler}>
-            <input type='text' onInput={captionHandler} />
-            <input type='file' name='file' onChange={onChangeHandler} />
-          </form>
+          <div className={classes.background}>
+            <div className={classes.postContainer}>
+              <input type='text' onInput={captionHandler} />
+              <input type='file' name='file' onChange={onChangeHandler} />
+              <div className={classes.btnContainer}>
+                <div
+                  className={classes.cancelBtn}
+                  onClick={cancelPostFormHandler}
+                >
+                  Cancel
+                </div>
+                <div className={classes.postBtn} onClick={postFormHandler}>
+                  Post
+                </div>
+              </div>
+            </div>
+          </div>
         ) : null}
         <div className={classes.headerContainer}>
           <div className={classes.logo}>
@@ -98,13 +111,16 @@ export const Profile = () => {
           </div>
           <div className={classes.desktop}>
             <div className={classes.searchContainer}>
-              <i className='fa fa-search' className={classes.searchIcon}></i>
+              <i className={`fa fa-search ${classes.searchIcon} `}></i>
               <input className={classes.searchBar} placeholder=' Search' />
             </div>
           </div>
           <div className={classes.icons}>
             <span>
-              <i className='fas fa-plus' onClick={postHandler}></i>
+              <i
+                className={`fas fa-plus ${classes.togglePost}`}
+                onClick={postHandler}
+              ></i>
             </span>
             <span>
               <i className='far fa-compass'></i>
@@ -118,9 +134,9 @@ export const Profile = () => {
           </div>
         </div>
       </header>
-      {posts.map((post, index) => (
+      {posts.map((poster, index) => (
         <Post
-          post={post}
+          post={poster}
           index={index}
           key={index}
           users={users}
