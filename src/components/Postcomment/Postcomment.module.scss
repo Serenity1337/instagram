@@ -1,0 +1,84 @@
+.bold {
+  font-family: 'sans-serif';
+  font-weight: bold;
+  margin: 10px 10px 10px 15px;
+}
+.commDiv {
+  font-size: 16px;
+  font-family: 'sans-serif';
+  display: flex;
+  justify-content: space-between;
+
+  margin: 10px 10px 0px 0px;
+}
+.commLikes {
+  margin: 0px 0px 0px 65px;
+  font-size: 14px;
+  color: grey;
+}
+.smImg {
+  width: 32px;
+  height: 30px;
+  border: 2px solid #f97167;
+  border-radius: 50%;
+  padding: 1px;
+  margin-left: 15px;
+}
+.flex {
+  display: flex;
+}
+.replyBtn {
+  margin-left: 10px;
+  color: grey;
+  cursor: pointer;
+}
+.inputAComment {
+  border: 0;
+  // border-bottom: black 1px solid;
+  margin: 10px 0px 0px 65px;
+  width: 100%;
+  background-color: #fafafa;
+}
+.inputAComment:focus {
+  // border: none;
+  outline: none;
+  // border-bottom: black 2px solid;
+}
+.line {
+  margin: 5px 35px 0 65px;
+  border: 0;
+  border-bottom: 1px solid black;
+}
+.line2 {
+  margin: 5px 35px 0 65px;
+  border: 0;
+  border-bottom: 3px solid black;
+}
+.container {
+  width: 80%;
+  padding-right: 50px;
+}
+.btnGrp {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: 20px;
+  .postCancelBtn {
+    margin-right: 20px;
+    cursor: pointer;
+  }
+  .postReplyBtn {
+    margin-right: 35px;
+    cursor: pointer;
+  }
+}
+.viewReplies {
+  color: blue;
+  cursor: pointer;
+  margin: 10px 10px 10px 65px;
+}
+.hideReplies {
+  color: blue;
+  cursor: pointer;
+  margin: 10px 10px 10px 65px;
+}
