@@ -10,6 +10,13 @@ type post {
   likedBy: [String!]!
   date: String!
 }
+
+type AuthData {
+  userId: ID!
+  token: String!
+  tokenExpiration: Int!
+}
+
 type comment {
   _id: ID!
   caption: String!
@@ -19,6 +26,7 @@ type comment {
   replies: [reply!]!
   date: String!
 }
+
 type reply {
   _id: ID!
   caption: String!
@@ -27,6 +35,7 @@ type reply {
   comment: comment!
   date: String!
 }
+
 type user {
   _id: ID!
   userName: String!
@@ -47,6 +56,12 @@ input postInput {
   date: String!
   poster: String!
 }
+
+input postUpdateInput {
+  id: String!
+  likedBy: [String!]!
+}
+
 input userInput {
   userName: String!
   password: String!
@@ -54,15 +69,27 @@ input userInput {
   avatar: String!
   followedBy: [String!]!
   following: [String!]!
- 
-  
 }
+
+input userUpdateInput {
+  id: String!
+  avatar: String
+  followedBy: [String]
+  following: [String]
+}
+
 input commentInput {
+  
   caption: String!
   poster: String!
   likedBy: [String!]!
   post: String!
   date: String!
+}
+
+input commentUpdateInput {
+  id: String!
+  likedBy: [String!]!
 }
 
 input replyInput {
@@ -73,20 +100,35 @@ input replyInput {
   date: String!
 }
 
+input replyUpdateInput {
+  id: String!
+  likedBy: [String!]!
+}
+
 type RootQuery {
     posts: [post]
     users: [user]
     comments: [comment]
     replies: [reply]
+    login(email: String!, password: String!): AuthData!
 }
 
 type RootMutation {
     createPost(postInput: postInput): post
+
     createUser(userInput: userInput): user
+
     createComment(commentInput: commentInput): comment
+
     createReply(replyInput: replyInput):reply
 
+    postUpdate(postUpdateInput: postUpdateInput): post
 
+    replyUpdate(replyUpdateInput: replyUpdateInput): reply
+
+    userUpdate(userUpdateInput:userUpdateInput): user
+
+    commentUpdate(commentUpdateInput:commentUpdateInput): comment
 }
 
 schema {
@@ -96,8 +138,7 @@ schema {
 `)
 
 
-// updatecomQuery(comQueryUpdateInput: comQueryUpdateInput): comQuery
-// updateReply(replyUpdateInput: replyUpdateInput): reply
+
 
 
 // input comQueryUpdateInput {

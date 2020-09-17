@@ -10,9 +10,12 @@ const graphQLSchema = require('./graphql/schema/index')
 
 const graphQLResolvers = require('./graphql/resolvers/index')
 
+const isAuth = require('./middleware/auth')
 const app = express();
 
 app.use(bodyParser.json());
+
+app.use(isAuth)
 
 app.use(cors())
 
@@ -25,21 +28,21 @@ filename: function (req, file, cb) {
 }
 })
 
-const upload = multer({ storage: storage }).single('file')
+// const upload = multer({ storage: storage }).single('file')
 
-app.post('/upload',function(req, res) {
+// app.post('/upload',function(req, res) {
  
-upload(req, res, function (err) {
-       if (err instanceof multer.MulterError) {
-           return res.status(500).json(err)
-       } else if (err) {
-           return res.status(500).json(err)
-       }
-  return res.status(200).send(req.file)
+// upload(req, res, function (err) {
+//        if (err instanceof multer.MulterError) {
+//            return res.status(500).json(err)
+//        } else if (err) {
+//            return res.status(500).json(err)
+//        }
+//   return res.status(200).send(req.file)
 
-})
+// })
 
-});
+// });
 
 app.use(
   '/graphql',
