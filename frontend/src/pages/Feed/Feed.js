@@ -133,6 +133,7 @@ export const Feed = () => {
       poster: user._id,
       likes: 0,
       likedBy: [],
+      date: constructDate()
     }
   
     let requestBody =  {
@@ -224,10 +225,10 @@ export const Feed = () => {
       {posts.map((post, index) => (
         <Post
           post={post}
+          posts={posts}
+          setposts={setposts}
           index={index}
           key={index}
-          user={user}
-          setuser={setuser}
           // postUser={postUser}
           // setpostUser={setpostUser}
         ></Post>

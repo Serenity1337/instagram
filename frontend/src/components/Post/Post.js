@@ -1,51 +1,75 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import classes from './Post.module.scss'
 import Postcomment from '../Postcomment'
+import {constructDate} from '../../functions'
+import {UserContext} from '../../userContext'
 export const Post = (props) => {
   const [postUser, setpostUser] = useState({})
   const [comments, setcomments] = useState([])
   const [commentState, setcommentState] = useState('')
   const [liked, setliked] = useState(false)
   const [post, setpost] = useState({})
+  const { user, setuser } = useContext(UserContext)
   const commentInput = React.createRef()
+  
   useEffect(() => {
     
     setcomments(props.post.comments)
     setpost(props.post)
-    console.log(props.post)
     const usersWhoLikedPostArr = [...props.post.likedBy]
-    const found = usersWhoLikedPostArr.includes(props.currentUserName)
+    const found = usersWhoLikedPostArr.includes(`${user._id}`)
     if (found) {
       setliked(true)
     } else {
       setliked(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [user])
+
+  useEffect(() => {
+    
+    setcomments(props.post.comments)
+  }, [comments])
+
+
   const commentInputHandler = (event) => {
     setcommentState(event.target.value)
   }
   const commentPostHandler = () => {
     const newComment = {
       caption: commentState,
-      poster: props.currentUserName,
+      poster: user._id,
       likedBy: [],
-      likes: 0,
-      id: Date.now(),
-      replies: [],
+      post: props.post._id,
+      date: constructDate()
     }
-    const commentsArr = [...comments, newComment]
+    const commentsArr = [...props.post.comments, newComment]
     const postCopy = { ...props.post }
     postCopy.comments = commentsArr
-    fetch('http://localhost:4000/posts/' + props.post.id, {
-      method: 'PUT',
-      body: JSON.stringify(postCopy),
+
+    let requestBody = {
+      query: `mutation {
+        createComment(commentInput: {
+          caption: "${commentState}"
+          poster: "${user._id}"
+          likedBy: []
+          post: "${props.post._id}"
+          date: "${constructDate()}"
+          
+        })
+        {
+          _id
+        }
+      }`
+    }
+    fetch('http://localhost:8000/graphql', {
+      method: 'POST',
+      body: JSON.stringify(requestBody),
       headers: {
         'Content-Type': 'application/json',
       },
     }).then((header) => {
       if (header.ok) {
-        setcomments(commentsArr)
         setpost(postCopy)
         return header.json()
       } else {
@@ -57,21 +81,33 @@ export const Post = (props) => {
 
   const likeBtnHandler = () => {
     const postClone = { ...props.post }
-    const userLikedArr = [...props.post.likedBy, props.currentUserName]
-    const likes = post.likes + 1
-    postClone.likes = likes
+    const userLikedArr = [...props.post.likedBy, user._id]
     postClone.likedBy = userLikedArr
     setliked(true)
+    const allposts = [...props.posts]
+    allposts[props.index] = postClone
+    const arr = JSON.stringify(userLikedArr)
+    let requestBody = {
+      query: `mutation {
+        postUpdate(postUpdateInput: {
+          id: "${props.post._id}",
+          likedBy: ${arr}
+        })
+        {
+          _id
+        }
+      }`
+    }
 
-    fetch('http://localhost:4000/posts/' + props.post.id, {
-      method: 'PUT',
-      body: JSON.stringify(postClone),
+    fetch('http://localhost:8000/graphql', {
+      method: 'POST',
+      body: JSON.stringify(requestBody),
       headers: {
         'Content-Type': 'application/json',
       },
     }).then((header) => {
       if (header.ok) {
-        setpost(postClone)
+        props.setposts(allposts)
         return header.json()
       } else {
         console.log(header)
@@ -82,22 +118,33 @@ export const Post = (props) => {
   const unlikeBtnHandler = () => {
     const postClone = { ...post }
     const userLikedArr = postClone.likedBy.filter(
-      (user) => user !== props.currentUserName
+      (user) => user._id !== user._id
     )
-    const likes = post.likes - 1
-    postClone.likes = likes
+    const allposts = [...props.posts]
+    allposts[props.index] = postClone
     postClone.likedBy = userLikedArr
+    const arr = JSON.stringify(userLikedArr)
     setliked(false)
-
-    fetch('http://localhost:4000/posts/' + props.post.id, {
-      method: 'PUT',
-      body: JSON.stringify(postClone),
+    let requestBody = {
+      query: `mutation {
+        postUpdate(postUpdateInput: {
+          id: "${props.post._id}",
+          likedBy: ${arr}
+        })
+        {
+          _id
+        }
+      }`
+    }
+    fetch('http://localhost:8000/graphql', {
+      method: 'POST',
+      body: JSON.stringify(requestBody),
       headers: {
         'Content-Type': 'application/json',
       },
     }).then((header) => {
       if (header.ok) {
-        setpost(postClone)
+        props.setposts(allposts)
         return header.json()
       } else {
         console.log(header)
@@ -110,11 +157,11 @@ export const Post = (props) => {
       <div className={classes.card}>
         <div className={classes.cardUser}>
           <img
-            src={`images/avatars/${props.user.avatar}`}
+            src={`images/avatars/${user.avatar}`}
             alt=''
             className={classes.smImg}
           />
-          <div className={classes.cardUsername}>{props.user.userName}</div>
+          <div className={classes.cardUsername}>{user.userName}</div>
         </div>
         <img
           src={`images/postpics/${props.post.picture}`}
@@ -142,7 +189,7 @@ export const Post = (props) => {
           </div>
         </div>
         <div className={classes.likeSection}>
-          <span className={classes.counter}> {props.post.likedBy.length} likes</span>
+          {props.post ? <span className={classes.counter}> {props.post.likedBy.length} likes</span> : null}
         </div>
 
         {comments.map((comment, commentIndex) => (
@@ -150,10 +197,12 @@ export const Post = (props) => {
             key={commentIndex}
             comment={comment}
             comments={comments}
-            post={post}
+            post={props.post}
+            index={props.index}
+            posts={props.posts}
+            setposts={props.setposts}
             commentIndex={commentIndex}
             setcomments={setcomments}
-            users={props.users}
           ></Postcomment>
         ))}
 

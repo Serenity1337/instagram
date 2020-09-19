@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import classes from './Postcomment.module.scss'
 import { Reply } from '../Reply/Reply'
+import {UserContext} from '../../userContext'
 export const Postcomment = (props) => {
-  const currentUserName = JSON.parse(localStorage.getItem('user'))
   const [commentLiked, setcommentLiked] = useState(false)
-  const [commPoster, setcommPoster] = useState({})
   const [replyState, setreplyState] = useState(false)
   const [replyFocusState, setreplyFocusState] = useState(false)
   const [replyMsg, setreplyMsg] = useState('')
@@ -12,21 +11,22 @@ export const Postcomment = (props) => {
   const [showReplies, setshowReplies] = useState(false)
   const [replyCount, setreplyCount] = useState(Number)
   const replyCommInput = React.createRef()
+  const { user, setuser } = useContext(UserContext)
   useEffect(() => {
     const usersWhoLikedCommArr = [...props.comment.likedBy]
-    const found = usersWhoLikedCommArr.includes(currentUserName)
-
+    const found = usersWhoLikedCommArr.includes(`${user._id}`)
+    console.log(found)
     if (found) {
       setcommentLiked(true)
     } else {
       setcommentLiked(false)
     }
-    const poster =
-      props.users.filter((user) => props.comment.poster !== user)[0] || {}
 
-    setcommPoster(poster)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.users])
+  }, [user])
+
+  console.log(props.comments)
+  console.log(props.comment)
 
   useEffect(() => {
     setreplyCount(props.comment.replies.length)
@@ -41,25 +41,43 @@ export const Postcomment = (props) => {
     const commentClone = { ...props.comment }
     const commentsClone = [...props.comments]
 
-    commentClone.likedBy = [...commentClone.likedBy, currentUserName]
-
-    commentClone.likes += 1
+    commentClone.likedBy = [...commentClone.likedBy, user._id]
 
     commentsClone[props.commentIndex] = commentClone
 
     postClone.comments = commentsClone
 
+    const arr = JSON.stringify(commentClone.likedBy)
+
+    const allPosts = [...props.posts]
+
+    allPosts[props.index] = postClone
+
+    let requestBody = {
+      query: `mutation {
+        commentUpdate(commentUpdateInput: {
+          id: "${props.comment._id}"
+          likedBy: ${arr}
+          
+        })
+        {
+          _id
+        }
+      }`
+    }
+
     setcommentLiked(true)
 
-    fetch('http://localhost:4000/posts/' + props.post.id, {
-      method: 'PUT',
-      body: JSON.stringify(postClone),
+    fetch('http://localhost:8000/graphql', {
+      method: 'POST',
+      body: JSON.stringify(requestBody),
       headers: {
         'Content-Type': 'application/json',
       },
     }).then((header) => {
       if (header.ok) {
         props.setcomments(commentsClone)
+        props.setposts(allPosts)
         return header.json()
       } else {
         console.log(header)
@@ -73,28 +91,46 @@ export const Postcomment = (props) => {
     const commentsClone = [...props.comments]
 
     const userLikedArr = commentClone.likedBy.filter(
-      (user) => user !== currentUserName
+      (user) => user._id !== user._id
     )
 
     commentClone.likedBy = userLikedArr
-
-    commentClone.likes -= 1
 
     commentsClone[props.commentIndex] = commentClone
 
     postClone.comments = commentsClone
 
+    const arr = JSON.stringify(userLikedArr)
+
+    const allPosts = [...props.posts]
+
+    allPosts[props.index] = postClone
+
+    let requestBody = {
+      query: `mutation {
+        commentUpdate(commentUpdateInput: {
+          id: "${props.comment._id}"
+          likedBy: ${arr}
+          
+        })
+        {
+          _id
+        }
+      }`
+    }
+
     setcommentLiked(false)
 
-    fetch('http://localhost:4000/posts/' + props.post.id, {
-      method: 'PUT',
-      body: JSON.stringify(postClone),
+    fetch('http://localhost:8000/graphql', {
+      method: 'POST',
+      body: JSON.stringify(requestBody),
       headers: {
         'Content-Type': 'application/json',
       },
     }).then((header) => {
       if (header.ok) {
         props.setcomments(commentsClone)
+        props.setposts(allPosts)
         // setreplyCount(commentClone.replies.length)
         return header.json()
       } else {
@@ -125,7 +161,7 @@ export const Postcomment = (props) => {
   const replyBtnHandler = () => {
     const newComment = {
       caption: `@${props.comment.poster} ${replyMsg}`,
-      poster: currentUserName,
+      poster: user._id,
       likedBy: [],
       likes: 0,
       id: Date.now(),
@@ -203,12 +239,12 @@ export const Postcomment = (props) => {
       <div className={classes.commDiv}>
         <div className={classes.flex}>
           <img
-            src={`images/avatars/${commPoster.avatar}`}
+            src={`images/avatars/${user.avatar}`}
             alt=''
             className={classes.smImg}
           />
           <div className={classes.comment}>
-            <span className={classes.bold}>{props.comment.poster}</span>
+            <span className={classes.bold}>{props.comment.poster.userName}</span>
             <span className={classes.commCaption}>{props.comment.caption}</span>
           </div>
         </div>
@@ -222,7 +258,7 @@ export const Postcomment = (props) => {
           </span>
         )}
       </div>
-      <span className={classes.commLikes}>{props.comment.likes} likes</span>
+      <span className={classes.commLikes}>{props.comment.likedBy.length} likes</span>
       <span className={classes.replyBtn} onClick={replyStateHandler}>
         reply
       </span>
