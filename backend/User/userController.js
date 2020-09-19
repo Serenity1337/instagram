@@ -23,14 +23,7 @@ let registerUser = (req, res) => {
       res.status(400).json(e)
     })
 }
-const getAll = async (req, res) => {
-  try {
-    let users = await User.find()
-    res.json(users)
-  } catch (e) {
-    res.status(400).json(e)
-  }
-}
+
 
 const getSingleUser = async (req, res) => {
   let id = req.user

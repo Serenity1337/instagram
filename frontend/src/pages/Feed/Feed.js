@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import classes from './Feed.module.scss'
 import axios from 'axios'
 import Post from '../../components/Post'
+import {UserContext} from '../../userContext'
+import {constructDate} from '../../functions'
 
 export const Feed = () => {
   const [posts, setposts] = useState([])
@@ -12,32 +14,100 @@ export const Feed = () => {
 
   const [fileState, setfileState] = useState({})
 
-  const currentUserName = JSON.parse(localStorage.getItem('user'))
-
   const [users, setusers] = useState([])
 
+  const { user, setuser } = useContext(UserContext)
+
   useEffect(() => {
-    const fetchPosts = async () => {
-      const response = await fetch('http://localhost:4000/posts')
-      const postsResponse = await response.json()
-      setposts(postsResponse)
+    
+    // fetching posts
+    console.log(constructDate())
+    let requestBody = {
+      query: `query {
+        posts {
+          _id
+          caption
+          picture
+          likedBy
+          poster {
+            _id
+            userName
+            email
+            avatar
+            followedBy
+            following
+          }
+          comments {
+            _id
+            caption
+            likedBy
+            poster {
+              _id
+            userName
+            email
+            avatar
+            followedBy
+            following
+            }
+            replies {
+              _id
+              caption
+              likedBy
+              date
+              poster {
+                _id
+              userName
+              email
+              avatar
+              followedBy
+              following
+              }
+            }
+            date
+            
+          }
+          
+        }
+      }`
     }
-    fetchPosts()
-    const fetchUsers = async () => {
-      const response = await fetch('http://localhost:4000/users')
-      const usersResponse = await response.json()
-      setusers(usersResponse)
-    }
-    fetchUsers()
+
+    fetch('http://localhost:8000/graphql', {
+                  method: 'POST',
+                  body: JSON.stringify(requestBody),
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                })
+                  .then((header) => {
+                    console.log(header)
+                    if (header.ok) {
+                      return header.json()
+                    } else {
+                        
+                        console.log('error')
+                    }
+                  })
+                  .then((response) => {
+                    setposts(response.data.posts)
+
+                  })
+                  .catch((e) => {
+                    console.log(e)
+                    throw (e)
+                  })
+
+
+    
     const checkIfLoggedIn = () => {
-      if (!currentUserName) {
+      if (!user) {
         window.location.href = 'http://localhost:3000/login'
       }
     }
     checkIfLoggedIn()
 
   }, [])
-
+  console.log(posts)
+  console.log(user)
   const postHandler = () => {
     setpostFormState(true)
   }
@@ -60,14 +130,30 @@ export const Feed = () => {
     const post = {
       picture: fileState.name,
       caption: captionState,
-      poster: currentUserName,
+      poster: user._id,
       likes: 0,
       likedBy: [],
-      comments: [],
     }
-    fetch('http://localhost:4000/posts', {
+  
+    let requestBody =  {
+      query:  `mutation {
+        createPost(postInput: {
+          caption: "${captionState}",
+          picture: "${fileState.name}",
+          likedBy: [],
+          date: "${constructDate()}",
+          poster: "${user._id}"
+          
+        })
+        {
+          _id
+        }
+      }`
+    }
+
+    fetch('http://localhost:8000/graphql', {
       method: 'POST',
-      body: JSON.stringify(post),
+      body: JSON.stringify(requestBody),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -135,13 +221,13 @@ export const Feed = () => {
           </div>
         </div>
       </header>
-      {posts.map((poster, index) => (
+      {posts.map((post, index) => (
         <Post
-          post={poster}
+          post={post}
           index={index}
           key={index}
-          users={users}
-          currentUserName={currentUserName}
+          user={user}
+          setuser={setuser}
           // postUser={postUser}
           // setpostUser={setpostUser}
         ></Post>

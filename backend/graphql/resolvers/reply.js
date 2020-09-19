@@ -49,6 +49,7 @@ module.exports = {
     return Reply.find()
     .then(replies => {
       return replies.map(reply => {
+
         return {
           ...reply.doc,
           _id: reply.id,

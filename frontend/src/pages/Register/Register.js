@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import classes from './Register.module.scss'
 import { Link } from 'react-router-dom'
+import {UserContext } from '../../userContext'
 
 export const Register = () => {
   const [emailInput, setemailInput] = useState('')
@@ -11,34 +12,13 @@ export const Register = () => {
 
   const [rpasswordInput, setrpasswordInput] = useState('')
 
-  const [users, setusers] = useState([])
-
   const [nameErrorState, setnameErrorstate] = useState(false)
 
   const [emailErrorstate, setemailErrorstate] = useState(false)
 
   const [passwordErrorstate, setpasswordErrorstate] = useState(false)
 
-  useEffect(() => {
-    fetch('http://localhost:4000/users', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((header) => {
-        if (!header.ok) {
-          throw Error(header)
-        }
-        return header.json()
-      })
-      .then((response) => {
-        setusers(response)
-      })
-      .catch((e) => {
-        console.log(e)
-      })
-  }, [])
+  const { user, setuser } = useContext(UserContext)
 
   const emailInputHandler = (event) => {
     setemailInput(event.target.value)
@@ -62,52 +42,30 @@ export const Register = () => {
     Array.prototype.forEach.call(event.target.elements, (element) => {
       element.value = ''
     })
-    const userData = {
-      userNames: [],
-      userEmails: [],
+if (passwordInput!==rpasswordInput || passwordInput === '' || rpasswordInput === '') {
+  setpasswordErrorstate(true)
+}
+else {
+setpasswordErrorstate(false)
+    let requestBody = {
+      query: `mutation {
+        createUser(userInput: {
+          userName: "${nameInput}"
+          password: "${passwordInput}"
+          email: "${emailInput}"
+          avatar: "test.jpg"
+          followedBy: []
+          following: []
+        })
+        {
+          _id
+        }
+      }`
     }
-    users.map((user) => {
-      userData.userNames.push(user.username)
-      userData.userEmails.push(user.email)
-      return 0
-    })
-    console.log(userData)
-    const dupeName = userData.userNames.includes(nameInput)
-    const dupeEmail = userData.userEmails.includes(emailInput)
 
-    if (dupeName) {
-      setnameErrorstate(true)
-      if (dupeEmail) {
-        setemailErrorstate(true)
-        if (passwordInput !== rpasswordInput) {
-          setpasswordErrorstate(true)
-        }
-      }
-    } else {
-      setnameErrorstate(false)
-      if (dupeEmail) {
-        setemailErrorstate(true)
-        if (passwordInput !== rpasswordInput) {
-          setpasswordErrorstate(true)
-        } else {
-          setpasswordErrorstate(false)
-        }
-      } else {
-        setemailErrorstate(false)
-        if (passwordInput !== rpasswordInput) {
-          setpasswordErrorstate(true)
-        } else {
-          setpasswordErrorstate(false)
-          console.log('asd')
-          let body = {
-            password: passwordInput,
-            username: nameInput,
-            email: emailInput,
-            avatar: 'test.jpg',
-          }
-          fetch('http://localhost:4000/users', {
+          fetch('http://localhost:8000/graphql', {
             method: 'POST',
-            body: JSON.stringify(body),
+            body: JSON.stringify(requestBody),
             headers: {
               'Content-Type': 'application/json',
             },
@@ -121,20 +79,28 @@ export const Register = () => {
               }
             })
             .then((response) => {
-              if (response) {
+                if (response.data.createUser !== null) {
+                  window.location.href = 'http://localhost:3000/login'
+                } else {
+                  console.log(response.errors[0].message)
+                  if (response.errors[0].message.includes('Email')) {
+                    setemailErrorstate(true)
+                    setnameErrorstate(false)
+                  } else {
+                    setnameErrorstate(true)
+                    setemailErrorstate(false)
+                  }
+                }
+                
                 // alert('Registration successful')
-
-                window.location.href = 'http://localhost:3000/login'
-              }
+                
             })
             .catch((e) => {
               console.log(e)
             })
-        }
         // console.log(response)
       }
-    }
-  }
+      }
 
   return (
     <div>
@@ -175,7 +141,7 @@ export const Register = () => {
           <div className={classes.inputContainer}>
             <span>enter password</span>
             <input
-              type='text'
+              type='password'
               name='password'
               id='registerPassword'
               onInput={passwordInputHandler}
@@ -185,7 +151,7 @@ export const Register = () => {
           <div className={classes.inputContainer}>
             <span>repeat password</span>
             <input
-              type='text'
+              type='password'
               name='rpassword'
               id='registerRPassword'
               onInput={rpasswordInputHandler}

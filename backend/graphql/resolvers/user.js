@@ -5,9 +5,13 @@ const User = require('../../models/userModel')
 
 module.exports = {
   createUser: async args => {
-    const existingUser = await User.findOne({ email: args.userInput.email})
+    const existingEmail = await User.findOne({ email: args.userInput.email})
+    if (existingEmail) {
+      throw new Error('Email is already in use')
+    }
+    const existingUser = await User.findOne({userName: args.userInput.userName})
     if (existingUser) {
-      throw new Error('User already exists')
+      throw new Error('Username is already in use')
     }
     const hashedPassword = await bcrypt.hash(args.userInput.password, 12)
     const user = new User({
@@ -29,18 +33,45 @@ module.exports = {
         throw err;
       });
   },
-  login: async ({email, password}) => {
-    const checkUser = await User.findOne({email: email})
-    if (!checkUser) {
-      throw new Error('User does not exist')
+//   login: async ({email, password}) => {
+//     const checkUser = await User.findOne({email: email})
+//     if (checkUser === null) {
+//       throw new Error('User does not exist')
+//     } 
+//       console.log(checkUser)
+//       const isEqual = await bcrypt.compare(password, checkUser.password);
+//       console.log(isEqual)
+//       if (!isEqual) {
+//         throw new Error('Password is incorrect!')
+//       } 
+//         const token = JWT.sign({userId: `${checkUser.id}`, email: checkUser.email}, 'verylongtokenkeystring', {expiresIn: '1h'})
+//         return {token: token, tokenExpiration: 1, userId: checkUser.id}
+        
+        
+      
+    
+    
+    
+// },
+login: async ({ email, password }) => {
+  const user = await User.findOne({ email: email });
+  if (!user) {
+    throw new Error('User does not exist!');
+  }
+  console.log(user)
+  const isEqual = await bcrypt.compare(password, user.password);
+  if (!isEqual) {
+    throw new Error('Password is incorrect!');
+  }
+  console.log(isEqual)
+  const token = JWT.sign(
+    { userId: user.id, email: user.email },
+    'somesupersecretkey',
+    {
+      expiresIn: '1h'
     }
-    const isEqual = await bcrypt.compare(password, checkUser.password);
-    if (!isEqual) {
-      throw new Error('Password is incorrect!')
-    }
-    console.log(checkUser.id)
-    const token = JWT.sign({userId: `${checkUser.id}`, email: checkUser.email}, 'verylongtokenkeystring', {expiresIn: '1h'})
-    return {token: token, tokenExpiration: 1, userId: checkUser.id}
+  );
+  return { userId: user.id, token: token, tokenExpiration: 1 };
 },
 userUpdate: args => {
   return new Promise ((resolve, reject)=> {
@@ -63,5 +94,12 @@ userUpdate: args => {
         else resolve(res)
     })
   })
+},
+
+
+user: (id) => {
+   return User.findById(id.id)
+ 
+  
 },
 }

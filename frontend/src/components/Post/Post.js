@@ -9,15 +9,10 @@ export const Post = (props) => {
   const [post, setpost] = useState({})
   const commentInput = React.createRef()
   useEffect(() => {
-    const poster =
-      props.users.filter((user) => props.post.poster !== user)[0] || {}
-
-    setpostUser(poster)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.users])
-  useEffect(() => {
+    
     setcomments(props.post.comments)
     setpost(props.post)
+    console.log(props.post)
     const usersWhoLikedPostArr = [...props.post.likedBy]
     const found = usersWhoLikedPostArr.includes(props.currentUserName)
     if (found) {
@@ -115,11 +110,11 @@ export const Post = (props) => {
       <div className={classes.card}>
         <div className={classes.cardUser}>
           <img
-            src={`images/avatars/${postUser.avatar}`}
+            src={`images/avatars/${props.user.avatar}`}
             alt=''
             className={classes.smImg}
           />
-          <div className={classes.cardUsername}>{props.post.poster}</div>
+          <div className={classes.cardUsername}>{props.user.userName}</div>
         </div>
         <img
           src={`images/postpics/${props.post.picture}`}
@@ -147,7 +142,7 @@ export const Post = (props) => {
           </div>
         </div>
         <div className={classes.likeSection}>
-          <span className={classes.counter}>{post.likes} likes</span>
+          <span className={classes.counter}> {props.post.likedBy.length} likes</span>
         </div>
 
         {comments.map((comment, commentIndex) => (

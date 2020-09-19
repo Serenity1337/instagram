@@ -107,10 +107,10 @@ input replyUpdateInput {
 
 type RootQuery {
     posts: [post]
-    users: [user]
+    user(id: String!): user
     comments: [comment]
     replies: [reply]
-    login(email: String!, password: String!): AuthData!
+    login(email: String!, password: String!): AuthData
 }
 
 type RootMutation {

@@ -1,21 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import classes from './Login.module.scss'
 import { Link } from 'react-router-dom'
 export const Login = () => {
   const [emailInput, setemailInput] = useState('')
-  const [passwordErrorState, setpasswordErrorState] = useState(false)
-  const [users, setusers] = useState([])
-  const [emailErrorstate, setemailErrorstate] = useState(false)
+  const [errorState, seterrorState] = useState(false)
   const [passwordInput, setpasswordInput] = useState('')
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const response = await fetch('http://localhost:4000/users')
-      const usersResponse = await response.json()
-      setusers(usersResponse)
-    }
-    fetchUsers()
-  }, [])
 
   const emailInputHandler = (event) => {
     setemailInput(event.target.value)
@@ -28,37 +17,50 @@ export const Login = () => {
     Array.prototype.forEach.call(event.target.elements, (element) => {
       element.value = ''
     })
-    const userData = {
-      userNames: [],
-      userEmails: [],
-    }
-    users.map((user) => {
-      userData.userNames.push(user.username)
-      userData.userEmails.push(user.email)
-      return 0
-    })
-    console.log(userData)
-    const emailFound = userData.userEmails.includes(emailInput)
-    const userFound = users.find((user) => user.email === emailInput)
-    console.log(userFound)
 
-    if (!emailFound) {
-      setemailErrorstate(true)
-    } else {
-      setemailErrorstate(false)
+          let requestBody = {
+            query: `query{
+  login(email: "${emailInput}", password: "${passwordInput}")
+  {
+    userId
+    token
+  }
+}`
+          }
+      
+                fetch('http://localhost:8000/graphql', {
+                  method: 'POST',
+                  body: JSON.stringify(requestBody),
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                })
+                  .then((header) => {
+                    console.log(header)
+                    if (header.ok) {
+                      return header.json()
+                    } else {
+                        
+                        console.log('error')
+                    }
+                  })
+                  .then((response) => {
+                    console.log(response)
+                    if (response.data.login === null) {
+                      seterrorState(true)
+                    } else {
+                      localStorage.setItem('token', JSON.stringify(response.data.login))
+                      window.location.href = `http://localhost:3000/`
+                    }
 
-      if (userFound.password !== passwordInput) {
-        setpasswordErrorState(true)
-      } else {
-        setpasswordErrorState(false)
+                  })
+                  .catch((e) => {
+                    console.log(e)
+                  })
+              // console.log(response)
+            
 
-        localStorage.setItem('user', JSON.stringify(userFound.username))
-        window.location.href = `http://localhost:3000/`
-        // JSON.parse(localStorage.getItem('komentarai'));
-      }
-    }
-
-    console.log(users)
+        
   }
   return (
     <>
@@ -83,8 +85,8 @@ export const Login = () => {
               onInput={passwordInputHandler}
             />
           </div>
-          {passwordErrorState || emailErrorstate ? (
-            <span className={classes.error}>Incorrect password or email.</span>
+          {errorState ? (
+            <span className={classes.error}>Incorrect email or password.</span>
           ) : null}
 
           <button type='click' id='loginSubmitBtn'>
