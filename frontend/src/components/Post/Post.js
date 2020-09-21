@@ -29,8 +29,7 @@ export const Post = (props) => {
   useEffect(() => {
     
     setcomments(props.post.comments)
-  }, [comments])
-
+  }, [props.posts])
 
   const commentInputHandler = (event) => {
     setcommentState(event.target.value)
@@ -46,6 +45,8 @@ export const Post = (props) => {
     const commentsArr = [...props.post.comments, newComment]
     const postCopy = { ...props.post }
     postCopy.comments = commentsArr
+
+    const allPosts = [...props.posts]
 
     let requestBody = {
       query: `mutation {
@@ -70,7 +71,7 @@ export const Post = (props) => {
       },
     }).then((header) => {
       if (header.ok) {
-        setpost(postCopy)
+        props.setposts(allPosts)
         return header.json()
       } else {
         console.log(header)

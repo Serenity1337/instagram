@@ -49,9 +49,8 @@ module.exports = {
     return Reply.find()
     .then(replies => {
       return replies.map(reply => {
-
         return {
-          ...reply.doc,
+          ...reply._doc,
           _id: reply.id,
           poster: user.bind(this, reply.poster),
           comment: comment.bind(this, reply.comment)

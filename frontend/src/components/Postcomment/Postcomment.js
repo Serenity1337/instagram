@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react'
 import classes from './Postcomment.module.scss'
 import { Reply } from '../Reply/Reply'
 import {UserContext} from '../../userContext'
+import {constructDate} from '../../functions'
 export const Postcomment = (props) => {
   const [commentLiked, setcommentLiked] = useState(false)
   const [replyState, setreplyState] = useState(false)
@@ -15,7 +16,6 @@ export const Postcomment = (props) => {
   useEffect(() => {
     const usersWhoLikedCommArr = [...props.comment.likedBy]
     const found = usersWhoLikedCommArr.includes(`${user._id}`)
-    console.log(found)
     if (found) {
       setcommentLiked(true)
     } else {
@@ -27,13 +27,14 @@ export const Postcomment = (props) => {
 
   console.log(props.comments)
   console.log(props.comment)
+  console.log(props.comments.replies)
+ 
 
-  useEffect(() => {
-    setreplyCount(props.comment.replies.length)
-  }, [props.comment.replies.length])
-  useEffect(() => {
-    setcommentReplies(props.comment.replies)
-  }, [props.comment.replies])
+    useEffect(() => {
+      setcommentReplies(props.comment.replies)
+    }, [props.comment.replies])
+
+
 
   // function for liking a comment
   const comLikeBtnHandler = () => {
@@ -160,26 +161,43 @@ export const Postcomment = (props) => {
 
   const replyBtnHandler = () => {
     const newComment = {
-      caption: `@${props.comment.poster} ${replyMsg}`,
+      caption: `@${props.comment.poster.userName} ${replyMsg}`,
       poster: user._id,
       likedBy: [],
-      likes: 0,
-      id: Date.now(),
+      comment: props.comment._id,
+      date: constructDate()
+    }
+
+    const requestBody = {
+      query: `mutation {
+        createReply(replyInput: {
+          caption: "@${props.comment.poster.userName} ${replyMsg}"
+          poster: "${user._id}"
+          likedBy: []
+          comment: "${props.comment._id}"
+          date: "${constructDate()}"
+        })
+        {
+          _id
+        }
+      }`
     }
 
     const repliesArr = [...props.comment.replies, newComment]
     const postCopy = { ...props.post }
     postCopy.comments[props.commentIndex].replies = repliesArr
+    const allPosts = [...props.posts]
+    allPosts[props.index] = postCopy
 
-    fetch('http://localhost:4000/posts/' + props.post.id, {
-      method: 'PUT',
-      body: JSON.stringify(postCopy),
+    fetch('http://localhost:8000/graphql', {
+      method: 'POST',
+      body: JSON.stringify(requestBody),
       headers: {
         'Content-Type': 'application/json',
       },
     }).then((header) => {
       if (header.ok) {
-        setcommentReplies(repliesArr)
+        props.setposts(allPosts)
         setreplyState(false)
         return header.json()
       } else {
@@ -195,7 +213,7 @@ export const Postcomment = (props) => {
     setshowReplies(false)
   }
   const viewRepliesRender = () => {
-    if (replyCount >= 1) {
+    if (props.comment.replies.length >= 1) {
       if (!showReplies) {
         return (
           <div
@@ -225,8 +243,10 @@ export const Postcomment = (props) => {
           reply={reply}
           replyIndex={replyIndex}
           post={props.post}
+          posts={props.posts}
+          setposts={props.setposts}
           comments={props.comments}
-          users={props.users}
+          setcomments={props.setcomments}
           commentReplies={commentReplies}
           setcommentReplies={setcommentReplies}
         ></Reply>

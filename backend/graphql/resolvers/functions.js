@@ -45,7 +45,7 @@ const comments = commentsIds => {
   return Comment.find({_id: {$in: commentsIds}})
   .then (comments => {
     return comments.map(comment => {
-      return { ...comment._doc, _id: comment.id, poster: user.bind(this, comment.poster)}
+      return { ...comment._doc, _id: comment.id, poster: user.bind(this, comment.poster), replies: replies.bind(this, comment.replies)}
     })
   })
 }
