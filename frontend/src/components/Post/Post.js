@@ -25,7 +25,7 @@ export const Post = (props) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
-
+  console.log(props.post)
   useEffect(() => {
     
     setcomments(props.post.comments)
@@ -190,10 +190,10 @@ export const Post = (props) => {
           </div>
         </div>
         <div className={classes.likeSection}>
-          {props.post ? <span className={classes.counter}> {props.post.likedBy.length} likes</span> : null}
+          <span className={classes.counter}> {props.post.likedBy.length} likes</span>
         </div>
 
-        {comments.map((comment, commentIndex) => (
+        {props.post.comments.map((comment, commentIndex) => (
           <Postcomment
             key={commentIndex}
             comment={comment}

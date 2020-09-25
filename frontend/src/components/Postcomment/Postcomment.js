@@ -25,9 +25,7 @@ export const Postcomment = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
 
-  console.log(props.comments)
-  console.log(props.comment)
-  console.log(props.comments.replies)
+
  
 
     useEffect(() => {

@@ -111,6 +111,7 @@ type RootQuery {
     comments: [comment]
     replies: [reply]
     login(email: String!, password: String!): AuthData
+    users: [user]
 }
 
 type RootMutation {

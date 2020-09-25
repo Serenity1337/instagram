@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs')
 const JWT = require('jsonwebtoken')
 
 const User = require('../../models/userModel')
+const { post, posts } = require('./functions')
 
 module.exports = {
   createUser: async args => {
@@ -99,7 +100,27 @@ userUpdate: args => {
 
 user: (id) => {
    return User.findById(id.id)
+   .then(user => {
+     return {
+       ...user._doc,
+       _id: user.id,
+       posts: posts.bind(this, user.posts)
+     }
+   })
  
   
 },
+
+users: () => {
+  return User.find()
+  .then(users => {
+    return users.map(user => {
+      return {
+        ...user._doc,
+        _id: user.id,
+        posts: posts.bind(this, user.posts)
+      }
+    })
+  })
+}
 }

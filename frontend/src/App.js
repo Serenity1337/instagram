@@ -5,12 +5,13 @@ import { BrowserRouter, Switch, Route } from 'react-router-dom'
 import Register from './pages/Register'
 import Login from './pages/Login'
 import Feed from './pages/Feed'
-
+import Profile from './pages/Profile'
 import { UserContext } from './userContext'
 
 function App() {
 
   const [user, setuser] = useState({})
+  const [users,setusers] = useState([])
   const value = useMemo(() => ({ user, setuser }), [user, setuser])
   useEffect(() => {
   const token = JSON.parse(localStorage.getItem('token'))
@@ -55,6 +56,53 @@ function App() {
                   console.log(e)
                 })
   }, [])
+  useEffect(() => {
+
+    let requestBody = {
+      query: `query {
+        users {
+          _id
+         userName
+          email
+          avatar
+          followedBy
+          following
+          posts {
+            _id
+            caption
+            picture
+            likedBy
+            date
+          }
+          
+        }
+      }`
+    }
+  
+    fetch('http://localhost:8000/graphql', {
+                  method: 'POST',
+                  body: JSON.stringify(requestBody),
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                })
+                  .then((header) => {
+                    console.log(header)
+                    if (header.ok) {
+                      return header.json()
+                    } else {
+                        console.log('error')
+                    }
+                  })
+                  .then((response) => {
+                    setusers(response.data.users)
+                      
+                  })
+                  .catch((e) => {
+                    console.log(e)
+                  })
+    }, [])
+
   return (
     <BrowserRouter>
       <Switch>
@@ -72,6 +120,12 @@ function App() {
           label='Register'
         ></Route>
         <Route path={`/`} component={Feed} exact={true} label='Feed'></Route>
+        {users.map((profileUser, profileIndex) => (
+          <Route key={profileIndex} path={`/${profileUser.userName}`} render={() => (<Profile profileUser={profileUser} users={users} profileIndex={profileIndex} setusers={setusers}/>)} exact={true} label='Profile'></Route>
+        ))
+
+        }
+        
         </UserContext.Provider>
       </Switch>
     </BrowserRouter>

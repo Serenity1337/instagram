@@ -4,6 +4,7 @@ import axios from 'axios'
 import Post from '../../components/Post'
 import {UserContext} from '../../userContext'
 import {constructDate} from '../../functions'
+import { Link } from 'react-router-dom'
 
 export const Feed = () => {
   const [posts, setposts] = useState([])
@@ -105,7 +106,7 @@ export const Feed = () => {
     }
     checkIfLoggedIn()
 
-  }, [posts])
+  }, [])
   console.log(posts)
   console.log(user)
   const postHandler = () => {
@@ -122,6 +123,7 @@ export const Feed = () => {
     setpostFormState(false)
   }
   const postFormHandler = (event) => {
+    event.preventDefault()
     const data = new FormData()
     data.append('file', fileState)
     axios.post('http://localhost:8000/upload', data, {}).then((res) => {
@@ -131,9 +133,9 @@ export const Feed = () => {
       picture: fileState.name,
       caption: captionState,
       poster: user._id,
-      likes: 0,
       likedBy: [],
-      date: constructDate()
+      date: constructDate(),
+      comments: []
     }
   
     let requestBody =  {
@@ -151,7 +153,7 @@ export const Feed = () => {
         }
       }`
     }
-
+    const postsArr = [...posts, post]
     fetch('http://localhost:8000/graphql', {
       method: 'POST',
       body: JSON.stringify(requestBody),
@@ -161,7 +163,7 @@ export const Feed = () => {
     }).then((header) => {
       if (header.ok) {
         setpostFormState(false)
-        const postsArr = [...posts, post]
+        
         setposts(postsArr)
         return header.json()
       } else {
@@ -192,11 +194,16 @@ export const Feed = () => {
           </div>
         ) : null}
         <div className={classes.headerContainer}>
-          <div className={classes.logo}>
-            <i className='fab fa-2x fa-instagram'></i>
-            <div className={classes.verticalLine}></div>
-            <span className={classes.hidden}>Instagram</span>
-          </div>
+       
+        <Link to={`/`} className={classes.logo}>
+        
+      <i className='fab fa-2x fa-instagram'></i>
+      
+        <div className={classes.verticalLine}></div>
+        <span className={classes.hidden}>Instagram</span>
+        
+        </Link>
+        
           <div className={classes.desktop}>
             <div className={classes.searchContainer}>
               <i className={`fa fa-search ${classes.searchIcon} `}></i>
@@ -216,9 +223,10 @@ export const Feed = () => {
             <span>
               <i className='far fa-heart'></i>
             </span>
-            <span>
-              <i className='far fa-user'></i>
-            </span>
+            <Link
+            to={`/${user.userName}`}>
+          <i className='far fa-user'></i>
+        </Link>
           </div>
         </div>
       </header>
