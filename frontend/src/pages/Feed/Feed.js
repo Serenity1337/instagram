@@ -2,8 +2,8 @@ import React, { useState, useEffect, useContext } from 'react'
 import classes from './Feed.module.scss'
 import axios from 'axios'
 import Post from '../../components/Post'
-import {UserContext} from '../../userContext'
-import {constructDate} from '../../functions'
+import { UserContext } from '../../userContext'
+import { constructDate } from '../../functions'
 import { Link } from 'react-router-dom'
 
 export const Feed = () => {
@@ -19,8 +19,9 @@ export const Feed = () => {
 
   const { user, setuser } = useContext(UserContext)
 
+  const [posted, setposted] = useState(false)
+
   useEffect(() => {
-    
     // fetching posts
     console.log(constructDate())
     let requestBody = {
@@ -69,44 +70,43 @@ export const Feed = () => {
           }
           
         }
-      }`
+      }`,
     }
 
     fetch('http://localhost:8000/graphql', {
-                  method: 'POST',
-                  body: JSON.stringify(requestBody),
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                })
-                  .then((header) => {
-                    console.log(header)
-                    if (header.ok) {
-                      return header.json()
-                    } else {
-                        
-                        console.log('error')
-                    }
-                  })
-                  .then((response) => {
-                    setposts(response.data.posts)
+      method: 'POST',
+      body: JSON.stringify(requestBody),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((header) => {
+        console.log(header)
+        if (header.ok) {
+          return header.json()
+        } else {
+          console.log('error')
+        }
+      })
+      .then((response) => {
+        setposts(response.data.posts)
+      })
+      .catch((e) => {
+        console.log(e)
+        throw e
+      })
 
-                  })
-                  .catch((e) => {
-                    console.log(e)
-                    throw (e)
-                  })
-
-
-    
-    const checkIfLoggedIn = () => {
-      if (!user) {
-        window.location.href = 'http://localhost:3000/login'
-      }
+    // const checkIfLoggedIn = () => {
+    //   if (user === null) {
+    //     window.location.href = 'http://localhost:3000/login'
+    //   }
+    // }
+    // checkIfLoggedIn()
+    const token = JSON.parse(localStorage.getItem('token'))
+    if (token === null) {
+      window.location.href = 'http://localhost:3000/login'
     }
-    checkIfLoggedIn()
-
-  }, [])
+  }, [posted])
   console.log(posts)
   console.log(user)
   const postHandler = () => {
@@ -135,11 +135,11 @@ export const Feed = () => {
       poster: user._id,
       likedBy: [],
       date: constructDate(),
-      comments: []
+      comments: [],
     }
-  
-    let requestBody =  {
-      query:  `mutation {
+
+    let requestBody = {
+      query: `mutation {
         createPost(postInput: {
           caption: "${captionState}",
           picture: "${fileState.name}",
@@ -151,7 +151,7 @@ export const Feed = () => {
         {
           _id
         }
-      }`
+      }`,
     }
     const postsArr = [...posts, post]
     fetch('http://localhost:8000/graphql', {
@@ -163,7 +163,7 @@ export const Feed = () => {
     }).then((header) => {
       if (header.ok) {
         setpostFormState(false)
-        
+        setposted(true)
         setposts(postsArr)
         return header.json()
       } else {
@@ -194,16 +194,13 @@ export const Feed = () => {
           </div>
         ) : null}
         <div className={classes.headerContainer}>
-       
-        <Link to={`/`} className={classes.logo}>
-        
-      <i className='fab fa-2x fa-instagram'></i>
-      
-        <div className={classes.verticalLine}></div>
-        <span className={classes.hidden}>Instagram</span>
-        
-        </Link>
-        
+          <Link to={`/`} className={classes.logo}>
+            <i className='fab fa-2x fa-instagram'></i>
+
+            <div className={classes.verticalLine}></div>
+            <span className={classes.hidden}>Instagram</span>
+          </Link>
+
           <div className={classes.desktop}>
             <div className={classes.searchContainer}>
               <i className={`fa fa-search ${classes.searchIcon} `}></i>
@@ -223,10 +220,9 @@ export const Feed = () => {
             <span>
               <i className='far fa-heart'></i>
             </span>
-            <Link
-            to={`/${user.userName}`}>
-          <i className='far fa-user'></i>
-        </Link>
+            <Link to={`/${user.userName}`}>
+              <i className='far fa-user'></i>
+            </Link>
           </div>
         </div>
       </header>
@@ -237,6 +233,8 @@ export const Feed = () => {
           setposts={setposts}
           index={index}
           key={index}
+          posted={posted}
+          setposted={setposted}
           // postUser={postUser}
           // setpostUser={setpostUser}
         ></Post>

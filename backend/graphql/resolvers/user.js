@@ -5,12 +5,14 @@ const User = require('../../models/userModel')
 const { post, posts } = require('./functions')
 
 module.exports = {
-  createUser: async args => {
-    const existingEmail = await User.findOne({ email: args.userInput.email})
+  createUser: async (args) => {
+    const existingEmail = await User.findOne({ email: args.userInput.email })
     if (existingEmail) {
       throw new Error('Email is already in use')
     }
-    const existingUser = await User.findOne({userName: args.userInput.userName})
+    const existingUser = await User.findOne({
+      userName: args.userInput.userName,
+    })
     if (existingUser) {
       throw new Error('Username is already in use')
     }
@@ -21,106 +23,143 @@ module.exports = {
       email: args.userInput.email,
       avatar: args.userInput.avatar,
       followedBy: args.userInput.followedBy,
-      following: args.userInput.following
-    });
+      following: args.userInput.following,
+      bio: args.userInput.bio,
+      gender: args.userInput.gender,
+      phoneNumber: args.userInput.phoneNumber,
+      fullName: args.userInput.fullName,
+    })
     return user
       .save()
-      .then(result => {
-        console.log(result);
-        return { ...result._doc,password: null, _id: result._doc._id.toString() };
+      .then((result) => {
+        console.log(result)
+        return {
+          ...result._doc,
+          password: null,
+          _id: result._doc._id.toString(),
+        }
       })
-      .catch(err => {
-        console.log(err);
-        throw err;
-      });
+      .catch((err) => {
+        console.log(err)
+        throw err
+      })
   },
-//   login: async ({email, password}) => {
-//     const checkUser = await User.findOne({email: email})
-//     if (checkUser === null) {
-//       throw new Error('User does not exist')
-//     } 
-//       console.log(checkUser)
-//       const isEqual = await bcrypt.compare(password, checkUser.password);
-//       console.log(isEqual)
-//       if (!isEqual) {
-//         throw new Error('Password is incorrect!')
-//       } 
-//         const token = JWT.sign({userId: `${checkUser.id}`, email: checkUser.email}, 'verylongtokenkeystring', {expiresIn: '1h'})
-//         return {token: token, tokenExpiration: 1, userId: checkUser.id}
-        
-        
-      
-    
-    
-    
-// },
-login: async ({ email, password }) => {
-  const user = await User.findOne({ email: email });
-  if (!user) {
-    throw new Error('User does not exist!');
-  }
-  console.log(user)
-  const isEqual = await bcrypt.compare(password, user.password);
-  if (!isEqual) {
-    throw new Error('Password is incorrect!');
-  }
-  console.log(isEqual)
-  const token = JWT.sign(
-    { userId: user.id, email: user.email },
-    'somesupersecretkey',
-    {
-      expiresIn: '1h'
-    }
-  );
-  return { userId: user.id, token: token, tokenExpiration: 1 };
-},
-userUpdate: args => {
-  return new Promise ((resolve, reject)=> {
-    User.findOneAndUpdate(
-      {_id: args.userUpdateInput.id},
-      {
-        $set: {
-          avatar: args.userUpdateInput.avatar,
-          followedBy: args.userUpdateInput.followedBy,
-          following: args.userUpdateInput.following
-        },
+  passwordUpdate: async (args) => {
+    const user = await User.findById(args.userPassUpdateInput.id)
 
-      },
-      {new: true},
-      
+    const oldPassCorrect = await bcrypt.compare(
+      args.userPassUpdateInput.oldPass,
+      user.password
     )
-  .exec((err, res) => {
+    if (!oldPassCorrect) {
+      throw new Error('Old password is incorrect')
+    }
+    // console.log(user)
+    const hashedPassword = await bcrypt.hash(
+      args.userPassUpdateInput.newPass,
+      12
+    )
+
+    return new Promise((resolve, reject) => {
+      User.findOneAndUpdate(
+        { _id: args.userPassUpdateInput.id },
+        {
+          $set: {
+            password: hashedPassword,
+          },
+        },
+        { new: true }
+      ).exec((err, res) => {
         console.log('test', res)
-        if(err) reject(err)
+        if (err) reject(err)
         else resolve(res)
+      })
     })
-  })
-},
+  },
+  login: async ({ email, password }) => {
+    const user = await User.findOne({ email: email })
+    if (!user) {
+      throw new Error('User does not exist!')
+    }
+    console.log(user)
+    const isEqual = await bcrypt.compare(password, user.password)
+    if (!isEqual) {
+      throw new Error('Password is incorrect!')
+    }
+    console.log(isEqual)
+    const token = JWT.sign(
+      { userId: user.id, email: user.email },
+      'somesupersecretkey',
+      {
+        expiresIn: '1h',
+      }
+    )
+    return { userId: user.id, token: token, tokenExpiration: 1 }
+  },
+  userUpdate: async (args) => {
+    const existingEmail = await User.findOne({
+      email: args.userUpdateInput.email,
+    })
+    if (
+      existingEmail &&
+      JSON.stringify(args.userUpdateInput.id) !==
+        JSON.stringify(existingEmail._id)
+    ) {
+      throw new Error('Email is already in use')
+    }
+    const existingUser = await User.findOne({
+      userName: args.userUpdateInput.userName,
+    })
+    if (
+      existingUser &&
+      JSON.stringify(args.userUpdateInput.id) !==
+        JSON.stringify(existingUser._id)
+    ) {
+      throw new Error('Username is already in use')
+    }
+    return new Promise((resolve, reject) => {
+      User.findOneAndUpdate(
+        { _id: args.userUpdateInput.id },
+        {
+          $set: {
+            followedBy: args.userUpdateInput.followedBy,
+            following: args.userUpdateInput.following,
+            phoneNumber: args.userUpdateInput.phoneNumber,
+            gender: args.userUpdateInput.gender,
+            bio: args.userUpdateInput.bio,
+            userName: args.userUpdateInput.userName,
+            email: args.userUpdateInput.email,
+            fullName: args.userUpdateInput.fullName,
+          },
+        },
+        { new: true }
+      ).exec((err, res) => {
+        console.log('test', res)
+        if (err) reject(err)
+        else resolve(res)
+      })
+    })
+  },
 
-
-user: (id) => {
-   return User.findById(id.id)
-   .then(user => {
-     return {
-       ...user._doc,
-       _id: user.id,
-       posts: posts.bind(this, user.posts)
-     }
-   })
- 
-  
-},
-
-users: () => {
-  return User.find()
-  .then(users => {
-    return users.map(user => {
+  user: (id) => {
+    return User.findById(id.id).then((user) => {
       return {
         ...user._doc,
         _id: user.id,
-        posts: posts.bind(this, user.posts)
+        posts: posts.bind(this, user.posts),
       }
     })
-  })
-}
+  },
+
+  users: () => {
+    return User.find().then((users) => {
+      return users.map((user) => {
+        return {
+          ...user._doc,
+          _id: user.id,
+          posts: posts.bind(this, user.posts),
+        }
+      })
+    })
+  },
 }

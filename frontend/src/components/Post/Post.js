@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react'
 import classes from './Post.module.scss'
 import Postcomment from '../Postcomment'
-import {constructDate} from '../../functions'
-import {UserContext} from '../../userContext'
+import { constructDate } from '../../functions'
+import { UserContext } from '../../userContext'
 export const Post = (props) => {
   const [postUser, setpostUser] = useState({})
   const [comments, setcomments] = useState([])
@@ -11,9 +11,8 @@ export const Post = (props) => {
   const [post, setpost] = useState({})
   const { user, setuser } = useContext(UserContext)
   const commentInput = React.createRef()
-  
+
   useEffect(() => {
-    
     setcomments(props.post.comments)
     setpost(props.post)
     const usersWhoLikedPostArr = [...props.post.likedBy]
@@ -27,7 +26,6 @@ export const Post = (props) => {
   }, [user])
   console.log(props.post)
   useEffect(() => {
-    
     setcomments(props.post.comments)
   }, [props.posts])
 
@@ -40,7 +38,7 @@ export const Post = (props) => {
       poster: user._id,
       likedBy: [],
       post: props.post._id,
-      date: constructDate()
+      date: constructDate(),
     }
     const commentsArr = [...props.post.comments, newComment]
     const postCopy = { ...props.post }
@@ -61,7 +59,7 @@ export const Post = (props) => {
         {
           _id
         }
-      }`
+      }`,
     }
     fetch('http://localhost:8000/graphql', {
       method: 'POST',
@@ -72,6 +70,8 @@ export const Post = (props) => {
     }).then((header) => {
       if (header.ok) {
         props.setposts(allPosts)
+        props.setposted(true)
+        console.log(props.post)
         return header.json()
       } else {
         console.log(header)
@@ -97,7 +97,7 @@ export const Post = (props) => {
         {
           _id
         }
-      }`
+      }`,
     }
 
     fetch('http://localhost:8000/graphql', {
@@ -135,7 +135,7 @@ export const Post = (props) => {
         {
           _id
         }
-      }`
+      }`,
     }
     fetch('http://localhost:8000/graphql', {
       method: 'POST',
@@ -190,7 +190,10 @@ export const Post = (props) => {
           </div>
         </div>
         <div className={classes.likeSection}>
-          <span className={classes.counter}> {props.post.likedBy.length} likes</span>
+          <span className={classes.counter}>
+            {' '}
+            {props.post.likedBy.length} likes
+          </span>
         </div>
 
         {props.post.comments.map((comment, commentIndex) => (

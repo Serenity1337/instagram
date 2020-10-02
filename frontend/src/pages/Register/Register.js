@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react'
 import classes from './Register.module.scss'
 import { Link } from 'react-router-dom'
-import {UserContext } from '../../userContext'
+import { UserContext } from '../../userContext'
 
 export const Register = () => {
   const [emailInput, setemailInput] = useState('')
@@ -42,13 +42,16 @@ export const Register = () => {
     Array.prototype.forEach.call(event.target.elements, (element) => {
       element.value = ''
     })
-if (passwordInput!==rpasswordInput || passwordInput === '' || rpasswordInput === '') {
-  setpasswordErrorstate(true)
-}
-else {
-setpasswordErrorstate(false)
-    let requestBody = {
-      query: `mutation {
+    if (
+      passwordInput !== rpasswordInput ||
+      passwordInput === '' ||
+      rpasswordInput === ''
+    ) {
+      setpasswordErrorstate(true)
+    } else {
+      setpasswordErrorstate(false)
+      let requestBody = {
+        query: `mutation {
         createUser(userInput: {
           userName: "${nameInput}"
           password: "${passwordInput}"
@@ -56,51 +59,54 @@ setpasswordErrorstate(false)
           avatar: "test.jpg"
           followedBy: []
           following: []
+          bio: ""
+          gender: ""
+          phoneNumber: ""
+          fullName: "asd"
         })
         {
           _id
         }
-      }`
-    }
+      }`,
+      }
 
-          fetch('http://localhost:8000/graphql', {
-            method: 'POST',
-            body: JSON.stringify(requestBody),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          })
-            .then((header) => {
-              console.log(header)
-              if (header.ok) {
-                return header.json()
-              } else {
-                alert('Registration failed')
-              }
-            })
-            .then((response) => {
-                if (response.data.createUser !== null) {
-                  window.location.href = 'http://localhost:3000/login'
-                } else {
-                  console.log(response.errors[0].message)
-                  if (response.errors[0].message.includes('Email')) {
-                    setemailErrorstate(true)
-                    setnameErrorstate(false)
-                  } else {
-                    setnameErrorstate(true)
-                    setemailErrorstate(false)
-                  }
-                }
-                
-                // alert('Registration successful')
-                
-            })
-            .catch((e) => {
-              console.log(e)
-            })
-        // console.log(response)
-      }
-      }
+      fetch('http://localhost:8000/graphql', {
+        method: 'POST',
+        body: JSON.stringify(requestBody),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then((header) => {
+          console.log(header)
+          if (header.ok) {
+            return header.json()
+          } else {
+            alert('Registration failed')
+          }
+        })
+        .then((response) => {
+          if (response.data.createUser !== null) {
+            window.location.href = 'http://localhost:3000/login'
+          } else {
+            console.log(response.errors[0].message)
+            if (response.errors[0].message.includes('Email')) {
+              setemailErrorstate(true)
+              setnameErrorstate(false)
+            } else {
+              setnameErrorstate(true)
+              setemailErrorstate(false)
+            }
+          }
+
+          // alert('Registration successful')
+        })
+        .catch((e) => {
+          console.log(e)
+        })
+      // console.log(response)
+    }
+  }
 
   return (
     <div>

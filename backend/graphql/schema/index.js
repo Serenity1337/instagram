@@ -1,4 +1,4 @@
-const { buildSchema} = require('graphql')
+const { buildSchema } = require('graphql')
 
 module.exports = buildSchema(`
 type post {
@@ -42,11 +42,15 @@ type user {
   password: String!
   email: String!
   avatar: String!
+  phoneNumber: String
+  gender: String
+  bio: String
   followedBy: [String!]!
   following: [String!]!
   posts: [post!]!
   comments: [comment!]!
   replies: [reply!]!
+  fullName: String!
 }
 
 input postInput {
@@ -56,7 +60,11 @@ input postInput {
   date: String!
   poster: String!
 }
-
+input userPassUpdateInput {
+  oldPass: String!
+  newPass: String!
+  id: String!
+}
 input postUpdateInput {
   id: String!
   likedBy: [String!]!
@@ -67,15 +75,24 @@ input userInput {
   password: String!
   email: String!
   avatar: String!
+  phoneNumber: String
+  gender: String
+  bio: String
   followedBy: [String!]!
   following: [String!]!
+  fullName: String!
 }
 
 input userUpdateInput {
   id: String!
-  avatar: String
-  followedBy: [String]
-  following: [String]
+  phoneNumber: String!
+  gender: String!
+  bio: String!
+  userName: String!
+  email: String!
+  followedBy: [String]!
+  following: [String]!
+  fullName: String!
 }
 
 input commentInput {
@@ -130,6 +147,8 @@ type RootMutation {
     userUpdate(userUpdateInput:userUpdateInput): user
 
     commentUpdate(commentUpdateInput:commentUpdateInput): comment
+
+    passwordUpdate(userPassUpdateInput:userPassUpdateInput): user
 }
 
 schema {
@@ -137,10 +156,6 @@ schema {
     mutation: RootMutation
 }
 `)
-
-
-
-
 
 // input comQueryUpdateInput {
 //   _id: String

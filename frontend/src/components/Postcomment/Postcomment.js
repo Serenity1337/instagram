@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react'
 import classes from './Postcomment.module.scss'
 import { Reply } from '../Reply/Reply'
-import {UserContext} from '../../userContext'
-import {constructDate} from '../../functions'
+import { UserContext } from '../../userContext'
+import { constructDate } from '../../functions'
 export const Postcomment = (props) => {
   const [commentLiked, setcommentLiked] = useState(false)
   const [replyState, setreplyState] = useState(false)
@@ -25,14 +25,9 @@ export const Postcomment = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
 
-
- 
-
-    useEffect(() => {
-      setcommentReplies(props.comment.replies)
-    }, [props.comment.replies])
-
-
+  useEffect(() => {
+    setcommentReplies(props.comment.replies)
+  }, [props.comment.replies])
 
   // function for liking a comment
   const comLikeBtnHandler = () => {
@@ -62,7 +57,7 @@ export const Postcomment = (props) => {
         {
           _id
         }
-      }`
+      }`,
     }
 
     setcommentLiked(true)
@@ -115,7 +110,7 @@ export const Postcomment = (props) => {
         {
           _id
         }
-      }`
+      }`,
     }
 
     setcommentLiked(false)
@@ -163,7 +158,7 @@ export const Postcomment = (props) => {
       poster: user._id,
       likedBy: [],
       comment: props.comment._id,
-      date: constructDate()
+      date: constructDate(),
     }
 
     const requestBody = {
@@ -178,7 +173,7 @@ export const Postcomment = (props) => {
         {
           _id
         }
-      }`
+      }`,
     }
 
     const repliesArr = [...props.comment.replies, newComment]
@@ -194,8 +189,10 @@ export const Postcomment = (props) => {
         'Content-Type': 'application/json',
       },
     }).then((header) => {
+      console.log(header)
       if (header.ok) {
         props.setposts(allPosts)
+        console.log(props.post)
         setreplyState(false)
         return header.json()
       } else {
@@ -262,7 +259,9 @@ export const Postcomment = (props) => {
             className={classes.smImg}
           />
           <div className={classes.comment}>
-            <span className={classes.bold}>{props.comment.poster.userName}</span>
+            <span className={classes.bold}>
+              {props.comment.poster.userName}
+            </span>
             <span className={classes.commCaption}>{props.comment.caption}</span>
           </div>
         </div>
@@ -276,7 +275,9 @@ export const Postcomment = (props) => {
           </span>
         )}
       </div>
-      <span className={classes.commLikes}>{props.comment.likedBy.length} likes</span>
+      <span className={classes.commLikes}>
+        {props.comment.likedBy.length} likes
+      </span>
       <span className={classes.replyBtn} onClick={replyStateHandler}>
         reply
       </span>

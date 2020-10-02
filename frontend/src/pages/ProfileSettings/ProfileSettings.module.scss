@@ -1,0 +1,103 @@
+.settings {
+  border: 1px solid rgba(var(--ca6, 219, 219, 219), 1);
+  max-width: 850px;
+  margin: 150px auto 0px auto;
+  background-color: #ffffff;
+  display: flex;
+  .sideBar {
+    border-right: 1px solid rgba(var(--ca6, 219, 219, 219), 1);
+    width: 200px;
+    .editProfile,
+    .changePassword {
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+  }
+  .profile {
+    padding: 20px 0px 20px 78px;
+    .avatarContainer {
+      display: flex;
+      .avatar {
+        width: 30px;
+        height: 30px;
+        margin: 0px 52px 35px 72px;
+        cursor: pointer;
+        img {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+        }
+      }
+      .nameUser {
+        color: #6b6b6b;
+      }
+    }
+    .bio,
+    .name,
+    .userName,
+    .phone,
+    .email,
+    .gender,
+    .password {
+      margin-bottom: 20px;
+      label {
+        color: #6b6b6b;
+        font-weight: bold;
+        font-size: 18px;
+      }
+      input {
+        color: #6b6b6b;
+        font-weight: bold;
+        margin-left: 40px;
+      }
+    }
+    .bio {
+      margin-left: 90px;
+    }
+    .name {
+      margin-left: 71px;
+    }
+    .userName {
+      margin-left: 38px;
+    }
+    .email {
+      margin-left: 70px;
+    }
+    .gender {
+      margin-left: 58px;
+    }
+    .password {
+      margin-left: 38px;
+    }
+    .phone {
+    }
+    .submitBtn,
+    .passwordBtn {
+      cursor: pointer;
+      border-radius: 5px;
+      background-color: #0095f6;
+      margin-left: 156px;
+      padding: 5px 10px;
+      color: #ffffff;
+    }
+    .passwordBtn {
+      margin-left: 40px;
+    }
+  }
+  .active {
+    font-weight: bold;
+  }
+  .hidden {
+    display: none;
+  }
+  .error {
+    color: red;
+    display: inline-block;
+    margin: 0px 0px 20px 75px;
+  }
+  .passwordError {
+    color: red;
+    display: block;
+    margin: 20px 0px 20px 40px;
+  }
+}

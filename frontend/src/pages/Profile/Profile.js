@@ -1,14 +1,14 @@
-import React, {useEffect,useState, useContext} from 'react'
-import {UserContext} from '../../userContext'
+import React, { useEffect, useState, useContext } from 'react'
+import { UserContext } from '../../userContext'
 import Header from '../../components/Header'
 import classes from './Profile.module.scss'
+import { Link } from 'react-router-dom'
 
 export const Profile = (props) => {
   const [posts, setposts] = useState([])
   const { user, setuser } = useContext(UserContext)
   const [following, setfollowing] = useState(false)
   useEffect(() => {
-    
     // fetching posts
     let requestBody = {
       query: `query {
@@ -56,36 +56,32 @@ export const Profile = (props) => {
           }
           
         }
-      }`
+      }`,
     }
 
     fetch('http://localhost:8000/graphql', {
-                  method: 'POST',
-                  body: JSON.stringify(requestBody),
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                })
-                  .then((header) => {
-                    console.log(header)
-                    if (header.ok) {
-                      return header.json()
-                    } else {
-                        
-                        console.log('error')
-                    }
-                  })
-                  .then((response) => {
-                    setposts(response.data.posts)
+      method: 'POST',
+      body: JSON.stringify(requestBody),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((header) => {
+        console.log(header)
+        if (header.ok) {
+          return header.json()
+        } else {
+          console.log('error')
+        }
+      })
+      .then((response) => {
+        setposts(response.data.posts)
+      })
+      .catch((e) => {
+        console.log(e)
+        throw e
+      })
 
-                  })
-                  .catch((e) => {
-                    console.log(e)
-                    throw (e)
-                  })
-
-
-    
     const checkIfLoggedIn = () => {
       if (!user) {
         window.location.href = 'http://localhost:3000/login'
@@ -96,14 +92,12 @@ export const Profile = (props) => {
     const isFollowing = props.profileUser.followedBy.includes(user._id)
 
     isFollowing ? setfollowing(true) : setfollowing(false)
-
   }, [])
 
-
   const followBtnHandler = () => {
-    const loggedInUser = {...user}
+    const loggedInUser = { ...user }
 
-    const profileUser = {...props.profileUser}
+    const profileUser = { ...props.profileUser }
 
     console.log(loggedInUser)
     console.log(profileUser)
@@ -119,8 +113,7 @@ export const Profile = (props) => {
     // creating a mutation for the logged in user
 
     let requestBody = {
-      query: 
-      `
+      query: `
       mutation {
         userUpdate(userUpdateInput: {
           id: "${loggedInUser._id}"
@@ -132,9 +125,9 @@ export const Profile = (props) => {
           _id
         }
       }
-      `
+      `,
     }
-    
+
     // committing the mutation for the logged in user
 
     fetch('http://localhost:8000/graphql', {
@@ -146,18 +139,18 @@ export const Profile = (props) => {
     }).then((header) => {
       if (header.ok) {
         setuser(loggedInUser)
-        
+
         return header.json()
       } else {
         console.log(header)
       }
     })
-    
+
     // creating a clone of profile user
 
     const allUsers = [...props.users]
 
-    profileUser.followedBy = [... profileUser.followedBy, loggedInUser._id]
+    profileUser.followedBy = [...profileUser.followedBy, loggedInUser._id]
 
     allUsers[props.profileIndex] = profileUser
 
@@ -168,8 +161,7 @@ export const Profile = (props) => {
     // creating a mutation of profile user
 
     requestBody = {
-      query: 
-      `
+      query: `
       mutation {
         userUpdate(userUpdateInput: {
           id: "${profileUser._id}"
@@ -181,7 +173,7 @@ export const Profile = (props) => {
           _id
         }
       }
-      `
+      `,
     }
 
     // committing the mutation of profile user
@@ -196,38 +188,36 @@ export const Profile = (props) => {
       if (header.ok) {
         props.setusers(allUsers)
         setfollowing(true)
-        
+
         return header.json()
       } else {
         console.log(header)
       }
     })
-
   }
 
-
   const unFollowBtnHandler = () => {
-    const loggedInUser = {...user}
+    const loggedInUser = { ...user }
 
-    const profileUser = {...props.profileUser}
+    const profileUser = { ...props.profileUser }
 
     console.log(loggedInUser)
     console.log(profileUser)
 
     // creating a clone of logged in user
 
-    loggedInUser.following = loggedInUser.following.filter((id) => id !== profileUser._id )
- 
+    loggedInUser.following = loggedInUser.following.filter(
+      (id) => id !== profileUser._id
+    )
 
-     const loggedInUserFollowingArr = JSON.stringify([...loggedInUser.following])
+    const loggedInUserFollowingArr = JSON.stringify([...loggedInUser.following])
 
     const loggedInFollowedArr = JSON.stringify([...loggedInUser.followedBy])
 
     // creating a mutation for the logged in user
 
     let requestBody = {
-      query: 
-      `
+      query: `
       mutation {
         userUpdate(userUpdateInput: {
           id: "${loggedInUser._id}"
@@ -239,9 +229,9 @@ export const Profile = (props) => {
           _id
         }
       }
-      `
+      `,
     }
-    
+
     // committing the mutation for the logged in user
 
     fetch('http://localhost:8000/graphql', {
@@ -253,18 +243,20 @@ export const Profile = (props) => {
     }).then((header) => {
       if (header.ok) {
         setuser(loggedInUser)
-        
+
         return header.json()
       } else {
         console.log(header)
       }
     })
-    
+
     // creating a clone of profile user
 
     const allUsers = [...props.users]
 
-   profileUser.followedBy = profileUser.followedBy.filter((id) => id !== loggedInUser._id )
+    profileUser.followedBy = profileUser.followedBy.filter(
+      (id) => id !== loggedInUser._id
+    )
 
     allUsers[props.profileIndex] = profileUser
 
@@ -275,8 +267,7 @@ export const Profile = (props) => {
     // creating a mutation of profile user
 
     requestBody = {
-      query: 
-      `
+      query: `
       mutation {
         userUpdate(userUpdateInput: {
           id: "${profileUser._id}"
@@ -288,7 +279,7 @@ export const Profile = (props) => {
           _id
         }
       }
-      `
+      `,
     }
 
     // committing the mutation of profile user
@@ -303,54 +294,71 @@ export const Profile = (props) => {
       if (header.ok) {
         props.setusers(allUsers)
         setfollowing(false)
-        
+
         return header.json()
       } else {
         console.log(header)
       }
     })
-
   }
   return (
-    
     <div>
-      <Header posts={posts} setposts={setposts}/>
+      <Header posts={posts} setposts={setposts} />
       <div className={classes.profile}>
+        <div className={classes.profileSection}>
+          <img
+            className={classes.avatar}
+            src={`images/avatars/${props.profileUser.avatar}`}
+            alt='#'
+          />
 
-          <div className={classes.profileSection}>
-            <img className={classes.avatar} src={`images/avatars/${props.profileUser.avatar}`} alt="#"/>
-
-            <div className={classes.profileStats}>
-              <div className={classes.firstRow}>
-                <span className={classes.userName}>{props.profileUser.userName}</span>
+          <div className={classes.profileStats}>
+            <div className={classes.firstRow}>
+              <span className={classes.userName}>
+                {props.profileUser.userName}
+              </span>
+              <Link to='/AccountSettings'>
                 <div className={classes.editBtn}>Edit Profile</div>
-                {user._id !== props.profileUser._id ? 
-                  !following ? (<div className={classes.followBtn} onClick={followBtnHandler}> Follow </div>)
-                
-                
-                  : (<div className={classes.followBtn} onClick={unFollowBtnHandler}> Unfollow </div>) : null}
-                
+              </Link>
 
-              </div>
-              <div className={classes.secondRow}>
-
-                  <span>{props.profileUser.posts.length} posts</span>
-                  <span className={classes.followers}>{props.profileUser.followedBy.length} followers</span>
-                  <span>{props.profileUser.following.length} following</span>
-
-              </div>
+              {user._id !== props.profileUser._id ? (
+                !following ? (
+                  <div className={classes.followBtn} onClick={followBtnHandler}>
+                    {' '}
+                    Follow{' '}
+                  </div>
+                ) : (
+                  <div
+                    className={classes.followBtn}
+                    onClick={unFollowBtnHandler}
+                  >
+                    {' '}
+                    Unfollow{' '}
+                  </div>
+                )
+              ) : null}
+            </div>
+            <div className={classes.secondRow}>
+              <span>{props.profileUser.posts.length} posts</span>
+              <span className={classes.followers}>
+                {props.profileUser.followedBy.length} followers
+              </span>
+              <span>{props.profileUser.following.length} following</span>
             </div>
           </div>
+        </div>
         <div className={classes.postSection}>
-
-          {props.profileUser.posts.length > 0 ? 
-          (props.profileUser.posts.map((post, index) => (
-            <img key={index} className={classes.post} src={`images/postpics/${post.picture}`}/>
-          ))
-          ) : 
-          (<div className={classes.noPosts}> You currently have no posts </div>)
-          }
-
+          {props.profileUser.posts.length > 0 ? (
+            props.profileUser.posts.map((post, index) => (
+              <img
+                key={index}
+                className={classes.post}
+                src={`images/postpics/${post.picture}`}
+              />
+            ))
+          ) : (
+            <div className={classes.noPosts}> You currently have no posts </div>
+          )}
         </div>
       </div>
     </div>
