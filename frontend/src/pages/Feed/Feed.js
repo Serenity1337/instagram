@@ -106,7 +106,7 @@ export const Feed = () => {
     if (token === null) {
       window.location.href = 'http://localhost:3000/login'
     }
-  }, [posted])
+  }, [posted || user])
   console.log(posts)
   console.log(user)
   const postHandler = () => {

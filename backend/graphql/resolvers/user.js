@@ -76,6 +76,23 @@ module.exports = {
       })
     })
   },
+  avatarUpdate: async (args) => {
+    return new Promise((resolve, reject) => {
+      User.findOneAndUpdate(
+        { _id: args.userAvatarUpdateInput.id },
+        {
+          $set: {
+            avatar: args.userAvatarUpdateInput.avatar,
+          },
+        },
+        { new: true }
+      ).exec((err, res) => {
+        console.log('test', res)
+        if (err) reject(err)
+        else resolve(res)
+      })
+    })
+  },
   login: async ({ email, password }) => {
     const user = await User.findOne({ email: email })
     if (!user) {

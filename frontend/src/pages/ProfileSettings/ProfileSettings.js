@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react'
 import { UserContext } from '../../userContext'
 import classes from './ProfileSettings.module.scss'
 import Header from '../../components/Header'
+import Axios from 'axios'
 
 export const ProfileSettings = (props) => {
   //states
@@ -349,8 +350,48 @@ export const ProfileSettings = (props) => {
 
   //change avatar handler
 
-  const changeAvatar = () => {
-    console.log('it works!')
+  const changeAvatar = (event) => {
+    console.log(event.target.files[0])
+    const data = new FormData()
+    data.append('file', event.target.files[0])
+    Axios.post('http://localhost:8000/upload2', data, {}).then((res) => {
+      console.log(res.statusText)
+    })
+    const userClone = { ...user }
+    userClone.avatar = event.target.files[0].name
+    const allUsers = [...props.users]
+    const userIndex = props.users.findIndex(
+      (findUser) => user._id === findUser._id
+    )
+    allUsers[userIndex] = userClone
+
+    let requestBody = {
+      query: `
+      mutation {
+        avatarUpdate(userAvatarUpdateInput:{
+          id: "${user._id}"
+          avatar: "${event.target.files[0].name}"
+        })
+        {
+          _id
+        }
+        }
+      `,
+    }
+    fetch('http://localhost:8000/graphql', {
+      method: 'POST',
+      body: JSON.stringify(requestBody),
+      headers: {
+        'COntent-Type': 'application/json',
+      },
+    }).then((header) => {
+      if (header.ok) {
+        props.setusers(allUsers)
+        setuser(userClone)
+      } else {
+        console.log(header)
+      }
+    })
   }
 
   //change avatar handler

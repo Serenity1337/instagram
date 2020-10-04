@@ -70,6 +70,10 @@ input postUpdateInput {
   likedBy: [String!]!
 }
 
+input userAvatarUpdateInput {
+  id: String!
+  avatar: String!
+}
 input userInput {
   userName: String!
   password: String!
@@ -149,6 +153,8 @@ type RootMutation {
     commentUpdate(commentUpdateInput:commentUpdateInput): comment
 
     passwordUpdate(userPassUpdateInput:userPassUpdateInput): user
+
+    avatarUpdate(userAvatarUpdateInput:userAvatarUpdateInput):user
 }
 
 schema {
