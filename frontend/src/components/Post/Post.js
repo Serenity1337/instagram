@@ -3,6 +3,7 @@ import classes from './Post.module.scss'
 import Postcomment from '../Postcomment'
 import { constructDate } from '../../functions'
 import { UserContext } from '../../userContext'
+import { PostsContext } from '../../postsContext'
 export const Post = (props) => {
   const [postUser, setpostUser] = useState({})
   const [comments, setcomments] = useState([])
@@ -10,6 +11,7 @@ export const Post = (props) => {
   const [liked, setliked] = useState(false)
   const [post, setpost] = useState({})
   const { user, setuser } = useContext(UserContext)
+  const { posts, setposts } = useContext(PostsContext)
   const commentInput = React.createRef()
 
   useEffect(() => {
@@ -23,11 +25,11 @@ export const Post = (props) => {
       setliked(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user])
-  console.log(props.post)
+  }, [])
+
   useEffect(() => {
     setcomments(props.post.comments)
-  }, [props.posts])
+  }, [posts])
 
   const commentInputHandler = (event) => {
     setcommentState(event.target.value)
@@ -39,12 +41,13 @@ export const Post = (props) => {
       likedBy: [],
       post: props.post._id,
       date: constructDate(),
+      replies: [],
     }
     const commentsArr = [...props.post.comments, newComment]
     const postCopy = { ...props.post }
     postCopy.comments = commentsArr
-
-    const allPosts = [...props.posts]
+    const allPosts = [...posts]
+    allPosts[props.index] = postCopy
 
     let requestBody = {
       query: `mutation {
@@ -69,9 +72,9 @@ export const Post = (props) => {
       },
     }).then((header) => {
       if (header.ok) {
-        props.setposts(allPosts)
-        props.setposted(true)
-        console.log(props.post)
+        props.setposted(allPosts)
+        setposts(allPosts)
+        console.log(props.posted)
         return header.json()
       } else {
         console.log(header)
@@ -79,14 +82,15 @@ export const Post = (props) => {
     })
     commentInput.current.value = ''
   }
-
   const likeBtnHandler = () => {
+    setliked(true)
     const postClone = { ...props.post }
     const userLikedArr = [...props.post.likedBy, user._id]
     postClone.likedBy = userLikedArr
-    setliked(true)
+
     const allposts = [...props.posts]
     allposts[props.index] = postClone
+    console.log(postClone)
     const arr = JSON.stringify(userLikedArr)
     let requestBody = {
       query: `mutation {
@@ -108,24 +112,30 @@ export const Post = (props) => {
       },
     }).then((header) => {
       if (header.ok) {
-        props.setposts(allposts)
+        // props.setposts(allposts)
+        props.setposted(allposts)
+        props.setpostposted(allposts)
+        setposts(allposts)
+        // props.setposted(allposts)
         return header.json()
       } else {
         console.log(header)
       }
     })
+    console.log(props.post)
   }
 
   const unlikeBtnHandler = () => {
+    setliked(false)
     const postClone = { ...post }
     const userLikedArr = postClone.likedBy.filter(
       (user) => user._id !== user._id
     )
-    const allposts = [...props.posts]
+    const allposts = [...posts]
     allposts[props.index] = postClone
     postClone.likedBy = userLikedArr
     const arr = JSON.stringify(userLikedArr)
-    setliked(false)
+
     let requestBody = {
       query: `mutation {
         postUpdate(postUpdateInput: {
@@ -137,6 +147,7 @@ export const Post = (props) => {
         }
       }`,
     }
+
     fetch('http://localhost:8000/graphql', {
       method: 'POST',
       body: JSON.stringify(requestBody),
@@ -145,12 +156,16 @@ export const Post = (props) => {
       },
     }).then((header) => {
       if (header.ok) {
-        props.setposts(allposts)
+        // props.setposts(allposts)
+        props.setposted(allposts)
+        props.setpostposted(allposts)
+        setposts(allposts)
         return header.json()
       } else {
         console.log(header)
       }
     })
+    console.log(props.post)
   }
 
   return (
@@ -162,7 +177,9 @@ export const Post = (props) => {
             alt=''
             className={classes.smImg}
           />
-          <div className={classes.cardUsername}>{user.userName}</div>
+          <div className={classes.cardUsername}>
+            {props.post.poster.userName}
+          </div>
         </div>
         <img
           src={`images/postpics/${props.post.picture}`}
@@ -207,6 +224,7 @@ export const Post = (props) => {
             setposts={props.setposts}
             commentIndex={commentIndex}
             setcomments={setcomments}
+            setposted={props.setposted}
           ></Postcomment>
         ))}
 

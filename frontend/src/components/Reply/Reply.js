@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react'
 import classes from './Reply.module.scss'
-import {UserContext} from '../../userContext'
-import {constructDate} from '../../functions'
+import { UserContext } from '../../userContext'
+import { constructDate } from '../../functions'
 export const Reply = (props) => {
   const [commentLiked, setcommentLiked] = useState(false)
   const [replyState, setreplyState] = useState(false)
@@ -23,7 +23,6 @@ export const Reply = (props) => {
 
   // function for liking a reply
   const replyLikeBtnHandler = () => {
-    
     const postClone = { ...props.post }
     const commentClone = { ...props.comment }
     const commentsClone = [...props.comments]
@@ -54,7 +53,7 @@ export const Reply = (props) => {
           _id
         }
       }
-      `
+      `,
     }
 
     setcommentLiked(true)
@@ -67,7 +66,7 @@ export const Reply = (props) => {
       },
     }).then((header) => {
       if (header.ok) {
-        props.setposts(allPosts)
+        props.setposted(allPosts)
         return header.json()
       } else {
         console.log(header)
@@ -110,7 +109,7 @@ export const Reply = (props) => {
           _id
         }
       }
-      `
+      `,
     }
 
     setcommentLiked(false)
@@ -123,7 +122,7 @@ export const Reply = (props) => {
       },
     }).then((header) => {
       if (header.ok) {
-        props.setposts(allPosts)
+        props.setposted(allPosts)
         return header.json()
       } else {
         console.log(header)
@@ -156,7 +155,7 @@ export const Reply = (props) => {
       poster: user._id,
       likedBy: [],
       comment: props.comment._id,
-      date: constructDate()
+      date: constructDate(),
     }
 
     const requestBody = {
@@ -171,7 +170,7 @@ export const Reply = (props) => {
         {
           _id
         }
-      }`
+      }`,
     }
 
     const repliesArr = [...props.comment.replies, newComment]
@@ -186,8 +185,7 @@ export const Reply = (props) => {
       },
     }).then((header) => {
       if (header.ok) {
-        props.setcommentReplies(repliesArr)
-        setreplyState(false)
+        props.setposted(postCopy)
         return header.json()
       } else {
         console.log(header)
@@ -221,7 +219,9 @@ export const Reply = (props) => {
         )}
       </div>
 
-      <span className={classes.commLikes}>{props.reply.likedBy.length} likes</span>
+      <span className={classes.commLikes}>
+        {props.reply.likedBy.length} likes
+      </span>
       <span className={classes.replyBtn} onClick={replyStateHandler}>
         reply
       </span>

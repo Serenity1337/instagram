@@ -3,112 +3,30 @@ import classes from './Feed.module.scss'
 import axios from 'axios'
 import Post from '../../components/Post'
 import { UserContext } from '../../userContext'
+import { PostsContext } from '../../postsContext'
 import { constructDate } from '../../functions'
 import { Link } from 'react-router-dom'
+import Header from '../../components/Header'
+import { UsersContext } from '../../usersContext'
 
-export const Feed = () => {
-  const [posts, setposts] = useState([])
-
+export const Feed = (props) => {
   const [postFormState, setpostFormState] = useState(false)
 
   const [captionState, setcaptionState] = useState('')
 
   const [fileState, setfileState] = useState({})
 
-  const [users, setusers] = useState([])
+  const { users, setusers } = useContext(UsersContext)
 
   const { user, setuser } = useContext(UserContext)
 
-  const [posted, setposted] = useState(false)
+  const { posts, setposts } = useContext(PostsContext)
 
-  useEffect(() => {
-    // fetching posts
-    console.log(constructDate())
-    let requestBody = {
-      query: `query {
-        posts {
-          _id
-          caption
-          picture
-          likedBy
-          poster {
-            _id
-            userName
-            email
-            avatar
-            followedBy
-            following
-          }
-          comments {
-            _id
-            caption
-            likedBy
-            poster {
-              _id
-            userName
-            email
-            avatar
-            followedBy
-            following
-            }
-            replies {
-              _id
-              caption
-              likedBy
-              date
-              poster {
-                _id
-              userName
-              email
-              avatar
-              followedBy
-              following
-              }
-            }
-            date
-            
-          }
-          
-        }
-      }`,
-    }
+  const [postposted, setpostposted] = useState(0)
 
-    fetch('http://localhost:8000/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((header) => {
-        console.log(header)
-        if (header.ok) {
-          return header.json()
-        } else {
-          console.log('error')
-        }
-      })
-      .then((response) => {
-        setposts(response.data.posts)
-      })
-      .catch((e) => {
-        console.log(e)
-        throw e
-      })
+  const [counter, setcounter] = useState(1)
+  useEffect(() => {}, [])
 
-    // const checkIfLoggedIn = () => {
-    //   if (user === null) {
-    //     window.location.href = 'http://localhost:3000/login'
-    //   }
-    // }
-    // checkIfLoggedIn()
-    const token = JSON.parse(localStorage.getItem('token'))
-    if (token === null) {
-      window.location.href = 'http://localhost:3000/login'
-    }
-  }, [posted || user])
-  console.log(posts)
-  console.log(user)
   const postHandler = () => {
     setpostFormState(true)
   }
@@ -163,7 +81,7 @@ export const Feed = () => {
     }).then((header) => {
       if (header.ok) {
         setpostFormState(false)
-        setposted(true)
+        props.setposted(post)
         setposts(postsArr)
         return header.json()
       } else {
@@ -171,9 +89,11 @@ export const Feed = () => {
       }
     })
   }
+
   return (
     <>
-      <header>
+      <Header posts={posts} setposts={setposts} />
+      {/* <header>
         {postFormState ? (
           <div className={classes.background}>
             <div className={classes.postContainer}>
@@ -225,20 +145,25 @@ export const Feed = () => {
             </Link>
           </div>
         </div>
-      </header>
-      {posts.map((post, index) => (
-        <Post
-          post={post}
-          posts={posts}
-          setposts={setposts}
-          index={index}
-          key={index}
-          posted={posted}
-          setposted={setposted}
-          // postUser={postUser}
-          // setpostUser={setpostUser}
-        ></Post>
-      ))}
+      </header> */}
+      {posts.length > 0
+        ? posts.map((post, index) => (
+            <Post
+              users={props.users}
+              setusers={props.setusers}
+              post={post}
+              posts={posts}
+              setposts={setposts}
+              index={index}
+              key={index}
+              setposted={props.setposted}
+              posted={props.posted}
+              setpostposted={setpostposted}
+              // postUser={postUser}
+              // setpostUser={setpostUser}
+            ></Post>
+          ))
+        : null}
     </>
   )
 }

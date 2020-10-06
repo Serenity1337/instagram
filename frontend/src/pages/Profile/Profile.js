@@ -5,82 +5,81 @@ import classes from './Profile.module.scss'
 import { Link } from 'react-router-dom'
 
 export const Profile = (props) => {
-  const [posts, setposts] = useState([])
   const { user, setuser } = useContext(UserContext)
   const [following, setfollowing] = useState(false)
   useEffect(() => {
-    // fetching posts
-    let requestBody = {
-      query: `query {
-        posts {
-          _id
-          caption
-          picture
-          likedBy
-          poster {
-            _id
-            userName
-            email
-            avatar
-            followedBy
-            following
-          }
-          comments {
-            _id
-            caption
-            likedBy
-            poster {
-              _id
-            userName
-            email
-            avatar
-            followedBy
-            following
-            }
-            replies {
-              _id
-              caption
-              likedBy
-              date
-              poster {
-                _id
-              userName
-              email
-              avatar
-              followedBy
-              following
-              }
-            }
-            date
-            
-          }
-          
-        }
-      }`,
-    }
+    //   // fetching posts
+    //   let requestBody = {
+    //     query: `query {
+    //       posts {
+    //         _id
+    //         caption
+    //         picture
+    //         likedBy
+    //         poster {
+    //           _id
+    //           userName
+    //           email
+    //           avatar
+    //           followedBy
+    //           following
+    //         }
+    //         comments {
+    //           _id
+    //           caption
+    //           likedBy
+    //           poster {
+    //             _id
+    //           userName
+    //           email
+    //           avatar
+    //           followedBy
+    //           following
+    //           }
+    //           replies {
+    //             _id
+    //             caption
+    //             likedBy
+    //             date
+    //             poster {
+    //               _id
+    //             userName
+    //             email
+    //             avatar
+    //             followedBy
+    //             following
+    //             }
+    //           }
+    //           date
 
-    fetch('http://localhost:8000/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((header) => {
-        console.log(header)
-        if (header.ok) {
-          return header.json()
-        } else {
-          console.log('error')
-        }
-      })
-      .then((response) => {
-        setposts(response.data.posts)
-      })
-      .catch((e) => {
-        console.log(e)
-        throw e
-      })
+    //         }
+
+    //       }
+    //     }`,
+    //   }
+
+    //   fetch('http://localhost:8000/graphql', {
+    //     method: 'POST',
+    //     body: JSON.stringify(requestBody),
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //   })
+    //     .then((header) => {
+    //       console.log(header)
+    //       if (header.ok) {
+    //         return header.json()
+    //       } else {
+    //         console.log('error')
+    //       }
+    //     })
+    //     .then((response) => {
+    //       setposts(response.data.posts)
+    //     })
+    //     .catch((e) => {
+    //       console.log(e)
+    //       throw e
+    //     })
 
     const checkIfLoggedIn = () => {
       if (!user) {
@@ -117,9 +116,14 @@ export const Profile = (props) => {
       mutation {
         userUpdate(userUpdateInput: {
           id: "${loggedInUser._id}"
-          avatar: "${loggedInUser.avatar}"
           followedBy: ${loggedInFollowedArr}
           following: ${logggedInFollowingArr}
+          phoneNumber: "${loggedInUser.phoneNumber}"
+          gender: "${loggedInUser.gender}"
+          bio: "${loggedInUser.bio}"
+          userName: "${loggedInUser.userName}"
+          email: "${loggedInUser.email}"
+          fullName: "${loggedInUser.fullName}"
         })
         {
           _id
@@ -165,9 +169,14 @@ export const Profile = (props) => {
       mutation {
         userUpdate(userUpdateInput: {
           id: "${profileUser._id}"
-          avatar: "${profileUser.avatar}"
           followedBy: ${profileFollowedArr}
           following: ${profileFollowingArr}
+          phoneNumber: "${profileUser.phoneNumber}"
+          gender: "${profileUser.gender}"
+          bio: "${profileUser.bio}"
+          userName: "${profileUser.userName}"
+          email: "${profileUser.email}"
+          fullName: "${profileUser.fullName}"
         })
         {
           _id
@@ -221,9 +230,14 @@ export const Profile = (props) => {
       mutation {
         userUpdate(userUpdateInput: {
           id: "${loggedInUser._id}"
-          avatar: "${loggedInUser.avatar}"
           followedBy: ${loggedInFollowedArr}
           following: ${loggedInUserFollowingArr}
+          phoneNumber: "${loggedInUser.phoneNumber}"
+          gender: "${loggedInUser.gender}"
+          bio: "${loggedInUser.bio}"
+          userName: "${loggedInUser.userName}"
+          email: "${loggedInUser.email}"
+          fullName: "${loggedInUser.fullName}"
         })
         {
           _id
@@ -271,9 +285,14 @@ export const Profile = (props) => {
       mutation {
         userUpdate(userUpdateInput: {
           id: "${profileUser._id}"
-          avatar: "${profileUser.avatar}"
           followedBy: ${profileUserFollowedArr}
           following: ${profileFollowingArr}
+          phoneNumber: "${profileUser.phoneNumber}"
+          gender: "${profileUser.gender}"
+          bio: "${profileUser.bio}"
+          userName: "${profileUser.userName}"
+          email: "${profileUser.email}"
+          fullName: "${profileUser.fullName}"
         })
         {
           _id
@@ -303,7 +322,7 @@ export const Profile = (props) => {
   }
   return (
     <div>
-      <Header posts={posts} setposts={setposts} />
+      <Header posts={props.posts} setposts={props.setposts} />
       <div className={classes.profile}>
         <div className={classes.profileSection}>
           <img

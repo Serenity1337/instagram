@@ -23,7 +23,7 @@ export const Postcomment = (props) => {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user])
+  }, [])
 
   useEffect(() => {
     setcommentReplies(props.comment.replies)
@@ -52,7 +52,7 @@ export const Postcomment = (props) => {
         commentUpdate(commentUpdateInput: {
           id: "${props.comment._id}"
           likedBy: ${arr}
-          
+
         })
         {
           _id
@@ -70,8 +70,7 @@ export const Postcomment = (props) => {
       },
     }).then((header) => {
       if (header.ok) {
-        props.setcomments(commentsClone)
-        props.setposts(allPosts)
+        props.setposted(allPosts)
         return header.json()
       } else {
         console.log(header)
@@ -105,7 +104,7 @@ export const Postcomment = (props) => {
         commentUpdate(commentUpdateInput: {
           id: "${props.comment._id}"
           likedBy: ${arr}
-          
+
         })
         {
           _id
@@ -123,8 +122,7 @@ export const Postcomment = (props) => {
       },
     }).then((header) => {
       if (header.ok) {
-        props.setcomments(commentsClone)
-        props.setposts(allPosts)
+        props.setposted(allPosts)
         // setreplyCount(commentClone.replies.length)
         return header.json()
       } else {
@@ -191,9 +189,7 @@ export const Postcomment = (props) => {
     }).then((header) => {
       console.log(header)
       if (header.ok) {
-        props.setposts(allPosts)
-        console.log(props.post)
-        setreplyState(false)
+        props.setposted(allPosts)
         return header.json()
       } else {
         console.log(header)
@@ -244,6 +240,7 @@ export const Postcomment = (props) => {
           setcomments={props.setcomments}
           commentReplies={commentReplies}
           setcommentReplies={setcommentReplies}
+          setposted={props.setposted}
         ></Reply>
       )
     }
