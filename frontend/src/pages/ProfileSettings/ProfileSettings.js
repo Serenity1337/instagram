@@ -228,7 +228,6 @@ export const ProfileSettings = (props) => {
     userCopy.gender = genderCopy
     userCopy.phoneNumber = phoneCopy
     userCopy.fullName = nameCopy
-    console.log(userCopy)
     const userIndex = props.users.findIndex(
       (findUser) => user._id === findUser._id
     )
@@ -294,16 +293,13 @@ export const ProfileSettings = (props) => {
 
   //change password handler
   const passwordChangeHandler = () => {
-    console.log(oldPass)
-    console.log(newPass)
-    console.log(rnewPass)
+
     setpasswordError('')
     if (newPass.length < 3) {
       setpasswordError('New password needs to be atleast 3 characters')
     } else {
       if (newPass !== rnewPass) {
         setpasswordError('Please make sure you repeated the password correctly')
-        console.log('asdaworks')
       }
     }
     let requestBody = {
@@ -351,11 +347,9 @@ export const ProfileSettings = (props) => {
   //change avatar handler
 
   const changeAvatar = (event) => {
-    console.log(event.target.files[0])
     const data = new FormData()
     data.append('file', event.target.files[0])
     Axios.post('http://localhost:8000/upload2', data, {}).then((res) => {
-      console.log(res.statusText)
     })
     const userClone = { ...user }
     userClone.avatar = event.target.files[0].name
@@ -402,17 +396,15 @@ export const ProfileSettings = (props) => {
       <div className={classes.settings}>
         <div className={classes.sideBar}>
           <div
-            className={`${classes.editProfile} ${
-              profile ? classes.active : null
-            }`}
+            className={`${classes.editProfile} ${profile ? classes.active : null
+              }`}
             onClick={changeProfileRender}
           >
             Edit Profile
           </div>
           <div
-            className={`${classes.changePassword} ${
-              changePassword ? classes.active : null
-            }`}
+            className={`${classes.changePassword} ${changePassword ? classes.active : null
+              }`}
             onClick={changePasswordRender}
           >
             Change Password

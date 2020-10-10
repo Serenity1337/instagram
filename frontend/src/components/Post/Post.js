@@ -74,7 +74,6 @@ export const Post = (props) => {
       if (header.ok) {
         props.setposted(allPosts)
         setposts(allPosts)
-        console.log(props.posted)
         return header.json()
       } else {
         console.log(header)
@@ -90,7 +89,6 @@ export const Post = (props) => {
 
     const allposts = [...props.posts]
     allposts[props.index] = postClone
-    console.log(postClone)
     const arr = JSON.stringify(userLikedArr)
     let requestBody = {
       query: `mutation {
@@ -113,8 +111,8 @@ export const Post = (props) => {
     }).then((header) => {
       if (header.ok) {
         // props.setposts(allposts)
-        props.setposted(allposts)
-        props.setpostposted(allposts)
+        // props.setposted(allposts)
+        // props.setpostposted(allposts)
         setposts(allposts)
         // props.setposted(allposts)
         return header.json()
@@ -122,7 +120,6 @@ export const Post = (props) => {
         console.log(header)
       }
     })
-    console.log(props.post)
   }
 
   const unlikeBtnHandler = () => {
@@ -157,15 +154,14 @@ export const Post = (props) => {
     }).then((header) => {
       if (header.ok) {
         // props.setposts(allposts)
-        props.setposted(allposts)
-        props.setpostposted(allposts)
+        // props.setposted(allposts)
+        // props.setpostposted(allposts)
         setposts(allposts)
         return header.json()
       } else {
         console.log(header)
       }
     })
-    console.log(props.post)
   }
 
   return (

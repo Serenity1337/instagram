@@ -73,7 +73,6 @@ export const Header = (props) => {
   const searchFilterHandler = (event) => {
     if (!event.target.value) {
       setfilteredUsers([])
-      console.log('asdasd')
     } else {
       const displayUsers = users.filter((data) => {
         if (event.target.value === null) return []
@@ -86,7 +85,6 @@ export const Header = (props) => {
           return data
         }
       })
-      console.log(displayUsers)
       setfilteredUsers(displayUsers)
     }
   }
@@ -233,9 +231,9 @@ export const Header = (props) => {
             <i className='far fa-heart'></i>
           </span>
 
-          <Link to={`/${user.userName}`}>
+          {user !== null ? (<Link to={`/${user.userName}`}>
             <i className='far fa-user'></i>
-          </Link>
+          </Link>): null}
         </div>
       </div>
     </header>

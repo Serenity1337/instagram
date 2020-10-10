@@ -24,7 +24,6 @@ module.exports = {
     return comment
     .save()
     .then(result => {
-      console.log(result)
       comments = { ...result._doc, _id: result._doc._id.toString(),
       poster: user.bind(this, result._doc.poster),
       post: post.bind(this, result._doc.post)

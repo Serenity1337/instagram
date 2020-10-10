@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import './App.css'
-import { BrowserRouter, Switch, Route } from 'react-router-dom'
+import { BrowserRouter, Switch, Route, useLocation } from 'react-router-dom'
 
 import Register from './pages/Register'
 import Login from './pages/Login'
@@ -24,44 +24,27 @@ function App() {
     const token = JSON.parse(localStorage.getItem('token'))
     if (token === null) {
       return
-    }
-    let requestBody = {
-      query: `query {
-      user(id: "${token.userId}")
-      {
-        _id
-        userName
-         email
-         avatar
-         followedBy
-         following
-         bio
-         gender
-         phoneNumber
-         fullName
-         posts {
-           _id
-           caption
-           picture
-           likedBy
-           date
-          poster {
-            _id
-            userName
-            email
-            avatar
-            phoneNumber
-            gender
-            bio
-            followedBy
-            following
-            fullName
-          }
-          comments {
-						_id
-            caption
-            likedBy
-            date
+    } else {
+      let requestBody = {
+        query: `query {
+        user(id: "${token.userId}")
+        {
+          _id
+          userName
+           email
+           avatar
+           followedBy
+           following
+           bio
+           gender
+           phoneNumber
+           fullName
+           posts {
+             _id
+             caption
+             picture
+             likedBy
+             date
             poster {
               _id
               userName
@@ -73,91 +56,91 @@ function App() {
               followedBy
               following
               fullName
-              
             }
-            replies {
-                _id
-                caption
-                poster {
-                  _id
-              userName
-              email
-              avatar
-              phoneNumber
-              gender
-              bio
-              followedBy
-              following
-              fullName
-                }
-                likedBy
-                date
-              }
-            
-            
-          }
-         }
-         
-          
-
-         }
-    }`,
-    }
-
-    fetch('http://localhost:8000/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((header) => {
-        console.log(header)
-        if (header.ok) {
-          return header.json()
-        } else {
-          console.log('error')
-        }
-      })
-      .then((response) => {
-        setuser(response.data.user)
-        const userCopy = response.data.user
-        let requestBody = {
-          query: `query {
-            users{
+            comments {
               _id
-              userName
-               email
-               avatar
-               followedBy
-               following
-               bio
-               gender
-               phoneNumber
-               fullName
-               posts {
-                 _id
-                 caption
-                 picture
-                 likedBy
-                 date
-                poster {
-                  _id
-                  userName
-                  email
-                  avatar
-                  phoneNumber
-                  gender
-                  bio
-                  followedBy
-                  following
-                  fullName
-                }
-                comments {
+              caption
+              likedBy
+              date
+              poster {
+                _id
+                userName
+                email
+                avatar
+                phoneNumber
+                gender
+                bio
+                followedBy
+                following
+                fullName
+                
+              }
+              replies {
                   _id
                   caption
+                  poster {
+                    _id
+                userName
+                email
+                avatar
+                phoneNumber
+                gender
+                bio
+                followedBy
+                following
+                fullName
+                  }
                   likedBy
                   date
+                }
+              
+              
+            }
+           }
+           
+            
+  
+           }
+      }`,
+      }
+  
+      fetch('http://localhost:8000/graphql', {
+        method: 'POST',
+        body: JSON.stringify(requestBody),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then((header) => {
+          console.log(header)
+          if (header.ok) {
+            return header.json()
+          } else {
+            console.log('error')
+          }
+        })
+        .then((response) => {
+          setuser(response.data.user)
+          const userCopy = response.data.user
+          let requestBody = {
+            query: `query {
+              users{
+                _id
+                userName
+                 email
+                 avatar
+                 followedBy
+                 following
+                 bio
+                 gender
+                 phoneNumber
+                 fullName
+                 posts {
+                   _id
+                   caption
+                   picture
+                   likedBy
+                   date
                   poster {
                     _id
                     userName
@@ -169,79 +152,93 @@ function App() {
                     followedBy
                     following
                     fullName
+                  }
+                  comments {
+                    _id
+                    caption
+                    likedBy
+                    date
+                    poster {
+                      _id
+                      userName
+                      email
+                      avatar
+                      phoneNumber
+                      gender
+                      bio
+                      followedBy
+                      following
+                      fullName
+                      
+                    }
+                    replies {
+                        _id
+                        caption
+                        poster {
+                          _id
+                      userName
+                      email
+                      avatar
+                      phoneNumber
+                      gender
+                      bio
+                      followedBy
+                      following
+                      fullName
+                        }
+                        likedBy
+                        date
+                      }
+                    
                     
                   }
-                  replies {
-                      _id
-                      caption
-                      poster {
-                        _id
-                    userName
-                    email
-                    avatar
-                    phoneNumber
-                    gender
-                    bio
-                    followedBy
-                    following
-                    fullName
-                      }
-                      likedBy
-                      date
+                 }
+                 
+                  
+        
+                 }
+            }`,
+          }
+  
+          fetch('http://localhost:8000/graphql', {
+            method: 'POST',
+            body: JSON.stringify(requestBody),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
+            .then((header) => {
+              console.log(header)
+              if (header.ok) {
+                return header.json()
+              } else {
+                console.log('error')
+              }
+            })
+            .then((response) => {
+              if (response) {
+                setusers(response.data.users)
+                const copyUsers = [...users]
+                let postsCopy = userCopy.posts
+                response.data.users.map((consumer, index) => {
+                  if (userCopy.following.includes(`${consumer._id}`)) {
+                    if (consumer.posts.length > 0) {
+                      postsCopy = [...postsCopy, ...consumer.posts]
                     }
-                  
-                  
-                }
-               }
-               
-                
-      
-               }
-          }`,
-        }
-
-        fetch('http://localhost:8000/graphql', {
-          method: 'POST',
-          body: JSON.stringify(requestBody),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
-          .then((header) => {
-            console.log(header)
-            if (header.ok) {
-              return header.json()
-            } else {
-              console.log('error')
-            }
-          })
-          .then((response) => {
-            console.log(response)
-            if (response) {
-              setusers(response.data.users)
-              const copyUsers = [...users]
-              let postsCopy = userCopy.posts
-              response.data.users.map((consumer, index) => {
-                if (userCopy.following.includes(`${consumer._id}`)) {
-                  if (consumer.posts.length > 0) {
-                    postsCopy = [...postsCopy, ...consumer.posts]
-                    console.log(consumer.posts)
                   }
-                }
-              })
-              setposts(postsCopy)
-              console.log(postsCopy)
-            }
-          })
-          .catch((e) => {
-            console.log(e)
-          })
-        console.log('im here from app users')
-      })
-      .catch((e) => {
-        console.log(e)
-      })
-    console.log('im here from app users')
+                })
+                setposts(postsCopy)
+              }
+            })
+            .catch((e) => {
+              console.log(e)
+            })
+        })
+        .catch((e) => {
+          console.log(e)
+        })
+    }
+
   }, [posted])
 
   useEffect(() => {
@@ -327,9 +324,17 @@ function App() {
     // }
     // checkIfLoggedIn()
     const token = JSON.parse(localStorage.getItem('token'))
-    if (token === null) {
-      window.location.href = 'http://localhost:3000/login'
+    if (token === null && window.location.pathname !== '/login') {
+      if (window.location.pathname !== '/register') {
+        window.location.href = 'http://localhost:3000/login'
+      } else {
+        return null
+      }
+      
+    } else {
+      return null
     }
+    
   }, [])
   // useEffect(() => {
 

@@ -98,8 +98,6 @@ export const Profile = (props) => {
 
     const profileUser = { ...props.profileUser }
 
-    console.log(loggedInUser)
-    console.log(profileUser)
 
     // creating a clone of logged in user
 
@@ -210,8 +208,6 @@ export const Profile = (props) => {
 
     const profileUser = { ...props.profileUser }
 
-    console.log(loggedInUser)
-    console.log(profileUser)
 
     // creating a clone of logged in user
 
@@ -347,14 +343,14 @@ export const Profile = (props) => {
                     Follow{' '}
                   </div>
                 ) : (
-                  <div
-                    className={classes.followBtn}
-                    onClick={unFollowBtnHandler}
-                  >
-                    {' '}
+                    <div
+                      className={classes.followBtn}
+                      onClick={unFollowBtnHandler}
+                    >
+                      {' '}
                     Unfollow{' '}
-                  </div>
-                )
+                    </div>
+                  )
               ) : null}
             </div>
             <div className={classes.secondRow}>
@@ -376,8 +372,8 @@ export const Profile = (props) => {
               />
             ))
           ) : (
-            <div className={classes.noPosts}> You currently have no posts </div>
-          )}
+              <div className={classes.noPosts}> You currently have no posts </div>
+            )}
         </div>
       </div>
     </div>

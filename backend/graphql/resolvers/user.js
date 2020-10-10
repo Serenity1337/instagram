@@ -32,7 +32,6 @@ module.exports = {
     return user
       .save()
       .then((result) => {
-        console.log(result)
         return {
           ...result._doc,
           password: null,
@@ -54,7 +53,6 @@ module.exports = {
     if (!oldPassCorrect) {
       throw new Error('Old password is incorrect')
     }
-    // console.log(user)
     const hashedPassword = await bcrypt.hash(
       args.userPassUpdateInput.newPass,
       12
@@ -70,7 +68,6 @@ module.exports = {
         },
         { new: true }
       ).exec((err, res) => {
-        console.log('test', res)
         if (err) reject(err)
         else resolve(res)
       })
@@ -87,7 +84,6 @@ module.exports = {
         },
         { new: true }
       ).exec((err, res) => {
-        console.log('test', res)
         if (err) reject(err)
         else resolve(res)
       })
@@ -98,12 +94,10 @@ module.exports = {
     if (!user) {
       throw new Error('User does not exist!')
     }
-    console.log(user)
     const isEqual = await bcrypt.compare(password, user.password)
     if (!isEqual) {
       throw new Error('Password is incorrect!')
     }
-    console.log(isEqual)
     const token = JWT.sign(
       { userId: user.id, email: user.email },
       'somesupersecretkey',
@@ -151,7 +145,7 @@ module.exports = {
         },
         { new: true }
       ).exec((err, res) => {
-        console.log('test', res)
+
         if (err) reject(err)
         else resolve(res)
       })

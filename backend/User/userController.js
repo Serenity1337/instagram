@@ -27,14 +27,12 @@ let registerUser = (req, res) => {
 
 const getSingleUser = async (req, res) => {
   let id = req.user
-  console.log(id)
   try {
     let user = await User.findById(id)
     res.json(user)
   } catch (e) {
     res.status(400).jsn(e)
   }
-  console.log(req.user)
 }
 const getUser = async (req, res) => {
   let user = req.user

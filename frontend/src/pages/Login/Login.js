@@ -18,49 +18,48 @@ export const Login = () => {
       element.value = ''
     })
 
-          let requestBody = {
-            query: `query{
+    let requestBody = {
+      query: `query{
   login(email: "${emailInput}", password: "${passwordInput}")
   {
     userId
     token
   }
 }`
-          }
-      
-                fetch('http://localhost:8000/graphql', {
-                  method: 'POST',
-                  body: JSON.stringify(requestBody),
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                })
-                  .then((header) => {
-                    console.log(header)
-                    if (header.ok) {
-                      return header.json()
-                    } else {
-                        
-                        console.log('error')
-                    }
-                  })
-                  .then((response) => {
-                    console.log(response)
-                    if (response.data.login === null) {
-                      seterrorState(true)
-                    } else {
-                      localStorage.setItem('token', JSON.stringify(response.data.login))
-                      window.location.href = `http://localhost:3000/`
-                    }
+    }
 
-                  })
-                  .catch((e) => {
-                    console.log(e)
-                  })
-              // console.log(response)
-            
+    fetch('http://localhost:8000/graphql', {
+      method: 'POST',
+      body: JSON.stringify(requestBody),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((header) => {
+        console.log(header)
+        if (header.ok) {
+          return header.json()
+        } else {
 
-        
+          console.log('error')
+        }
+      })
+      .then((response) => {
+        console.log(response)
+        if (response.data.login === null) {
+          seterrorState(true)
+        } else {
+          localStorage.setItem('token', JSON.stringify(response.data.login))
+          window.location.href = `http://localhost:3000/`
+        }
+
+      })
+      .catch((e) => {
+        console.log(e)
+      })
+
+
+
   }
   return (
     <>
@@ -79,7 +78,7 @@ export const Login = () => {
           <div className={classes.inputContainer}>
             <span>enter password</span>
             <input
-              type='text'
+              type='password'
               name='password'
               id='loginPassword'
               onInput={passwordInputHandler}

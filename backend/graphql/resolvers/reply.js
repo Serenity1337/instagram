@@ -41,7 +41,6 @@ module.exports = {
     })
     .catch(err => {
       console.log(err)
-      console.log('asd')
       throw err
     })
   },
@@ -88,7 +87,6 @@ module.exports = {
   //         likedBy: args.replyUpdateInput.likedBy
   //       },
   //     }.exec((err, res) => {
-  //       console.log('test', res)
   //       if(err) reject(err)
   //       else resolve(res)
   //   })
