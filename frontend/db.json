@@ -1,0 +1,158 @@
+{
+  "users": [
+    {
+      "password": "asd",
+      "username": "asd",
+      "email": "asd@gmail.com",
+      "avatar": "test.jpg",
+      "id": 1
+    },
+    {
+      "password": "admin",
+      "username": "admin",
+      "email": "admin@gmail.com",
+      "avatar": "test.jpg",
+      "id": 2
+    }
+  ],
+  "posts": [
+    {
+      "picture": "531725231421652992.png",
+      "caption": "asd",
+      "poster": "asd",
+      "likes": 1,
+      "likedBy": [
+        "asd",
+        "asd",
+        "admin",
+        "asd"
+      ],
+      "comments": [
+        {
+          "caption": "asd",
+          "poster": "asd",
+          "likedBy": [
+            "asd",
+            "admin"
+          ],
+          "likes": 2,
+          "id": 1597693035776,
+          "replies": [
+            {
+              "caption": "@asd asdasdasd",
+              "poster": "asd",
+              "likedBy": [
+                "asd",
+                "admin"
+              ],
+              "likes": 2,
+              "id": 1597693538156
+            },
+            {
+              "caption": "@asd xasdads",
+              "poster": "asd",
+              "likedBy": [
+                "asd"
+              ],
+              "likes": 1,
+              "id": 1599743576492,
+              "replies": []
+            }
+          ]
+        },
+        {
+          "caption": "xasd",
+          "poster": "asd",
+          "likedBy": [
+            "asd",
+            "admin"
+          ],
+          "likes": 2,
+          "id": 1597693557799,
+          "replies": []
+        },
+        {
+          "caption": "asdasxasd",
+          "poster": "admin",
+          "likedBy": [
+            "admin",
+            "asd"
+          ],
+          "likes": 2,
+          "id": 1599732688984,
+          "replies": []
+        },
+        {
+          "caption": "123",
+          "poster": "admin",
+          "likedBy": [
+            "admin",
+            "asd"
+          ],
+          "likes": 2,
+          "id": 1599732719071,
+          "replies": []
+        }
+      ],
+      "id": 1
+    },
+    {
+      "picture": "reee_braap_1.gif",
+      "caption": "",
+      "poster": "asd",
+      "likes": 1,
+      "likedBy": [
+        "asd"
+      ],
+      "comments": [],
+      "id": 2
+    },
+    {
+      "picture": "9919_Skype.png",
+      "caption": "xasd",
+      "poster": "asd",
+      "likes": 0,
+      "likedBy": [],
+      "comments": [],
+      "id": 3
+    },
+    {
+      "picture": "9919_Skype.png",
+      "caption": "xasdasd",
+      "poster": "asd",
+      "likes": 0,
+      "likedBy": [],
+      "comments": [],
+      "id": 4
+    },
+    {
+      "picture": "9919_Skype.png",
+      "caption": "xasdad",
+      "poster": "asd",
+      "likes": 0,
+      "likedBy": [],
+      "comments": [],
+      "id": 5
+    },
+    {
+      "picture": "9919_Skype.png",
+      "caption": "asdasd",
+      "poster": "asd",
+      "likes": 0,
+      "likedBy": [],
+      "comments": [],
+      "id": 6
+    },
+    {
+      "picture": "9919_Skype.png",
+      "caption": "xasdasd",
+      "poster": "asd",
+      "likes": 1,
+      "likedBy": [
+        "asd"
+      ],
+      "comments": [],
+      "id": 7
+    }
+  ]
+}
