@@ -4,4 +4,5 @@ This project was created with MERN stack. The way to run it:
 
 
 Then start another terminal and run: 
+
 2) cd frontend --> npm install --> npm run start:react
