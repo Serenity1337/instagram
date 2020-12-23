@@ -1,8 +1,11 @@
 # instagram
-This project was created with MERN stack. The way to run it:
-1) cd backend --> npm install --> npm run start:back
 
+This project was created with MERN stack. A full stack copy of instagram with functionalities like register,login,create a post, following people, liking posts,comments,replies. A fun personal project to learn a little bit of both worlds, both backend and frontend.
 
-Then start another terminal and run: 
+To run it you need to open two terminals:
 
-2) cd frontend --> npm install --> npm run start:react
+1. cd backend --> npm install --> npm run start:back
+
+Then start another terminal and run:
+
+2. cd frontend --> npm install --> npm run start:react
