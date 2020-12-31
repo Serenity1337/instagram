@@ -10,16 +10,17 @@ import { UserContext } from './userContext'
 import { PostsContext } from './postsContext'
 import ProfileSettings from './pages/ProfileSettings'
 import { UsersContext } from './usersContext'
+import Header from './components/Header'
 
 function App() {
   const [user, setuser] = useState({})
   const [posts, setposts] = useState([])
   const [users, setusers] = useState([])
   const [posted, setposted] = useState('')
-  const [counter, setcounter] = useState(0)
   const value = useMemo(() => ({ user, setuser }), [user, setuser])
   const postsValue = useMemo(() => ({ posts, setposts }), [posts, setposts])
   const usersValue = useMemo(() => ({ users, setusers }), [users, setusers])
+  const location = useLocation()
   useEffect(() => {
     const token = JSON.parse(localStorage.getItem('token'))
     if (token === null) {
@@ -103,7 +104,7 @@ function App() {
            }
       }`,
       }
-  
+
       fetch('http://localhost:8000/graphql', {
         method: 'POST',
         body: JSON.stringify(requestBody),
@@ -199,7 +200,7 @@ function App() {
                  }
             }`,
           }
-  
+
           fetch('http://localhost:8000/graphql', {
             method: 'POST',
             body: JSON.stringify(requestBody),
@@ -238,171 +239,86 @@ function App() {
           console.log(e)
         })
     }
-
   }, [posted])
 
   useEffect(() => {
-    // fetching posts
-    // let requestBody = {
-    //   query: `query {
-    //     posts {
-    //       _id
-    //       caption
-    //       picture
-    //       likedBy
-    //       poster {
-    //         _id
-    //         userName
-    //         email
-    //         avatar
-    //         followedBy
-    //         following
-    //       }
-    //       comments {
-    //         _id
-    //         caption
-    //         likedBy
-    //         poster {
-    //           _id
-    //         userName
-    //         email
-    //         avatar
-    //         followedBy
-    //         following
-    //         }
-    //         replies {
-    //           _id
-    //           caption
-    //           likedBy
-    //           date
-    //           poster {
-    //             _id
-    //           userName
-    //           email
-    //           avatar
-    //           followedBy
-    //           following
-    //           }
-    //         }
-    //         date
-
-    //       }
-
-    //     }
-    //   }`,
-    // }
-
-    // fetch('http://localhost:8000/graphql', {
-    //   method: 'POST',
-    //   body: JSON.stringify(requestBody),
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    // })
-    //   .then((header) => {
-    //     console.log(header)
-    //     if (header.ok) {
-    //       return header.json()
-    //     } else {
-    //       console.log('error')
-    //     }
-    //   })
-    //   .then((response) => {
-    //     if (response.data.posts[0] !== null) {
-    //     }
-    //     return null
-    //   })
-    //   .catch((e) => {
-    //     console.log(e)
-    //     throw e
-    //   })
-
-    // const checkIfLoggedIn = () => {
-    //   if (user === null) {
-    //     window.location.href = 'http://localhost:3000/login'
-    //   }
-    // }
     // checkIfLoggedIn()
     const token = JSON.parse(localStorage.getItem('token'))
     if (token === null && window.location.pathname !== '/login') {
       if (window.location.pathname !== '/register') {
         window.location.href = 'http://localhost:3000/login'
-      } else {
-        return null
       }
-      
-    } else {
-      return null
     }
-    
   }, [])
   // useEffect(() => {
 
   // }, [user])
   return (
-    <BrowserRouter>
-      <Switch>
-        <PostsContext.Provider value={postsValue}>
-          <UserContext.Provider value={value}>
-            <UsersContext.Provider value={usersValue}>
+    <Switch>
+      <PostsContext.Provider value={postsValue}>
+        <UserContext.Provider value={value}>
+          <UsersContext.Provider value={usersValue}>
+            {location.pathname == '/register' ||
+            location.pathname == '/login' ? null : (
+              <Header users={users} setusers={setusers} />
+            )}
+            <Route
+              path={`/login`}
+              component={Login}
+              exact={true}
+              label='Login'
+            ></Route>
+            <Route
+              path={`/register`}
+              component={Register}
+              exact={true}
+              label='Register'
+            ></Route>
+            <Route
+              path={`/`}
+              render={() => (
+                <Feed
+                  users={users}
+                  setusers={setusers}
+                  posts={posts}
+                  setposts={setposts}
+                  posted={posted}
+                  setposted={setposted}
+                />
+              )}
+              exact={true}
+              label='Feed'
+            ></Route>
+            {users.map((profileUser, profileIndex) => (
               <Route
-                path={`/login`}
-                component={Login}
-                exact={true}
-                label='Login'
-              ></Route>
-              <Route
-                path={`/register`}
-                component={Register}
-                exact={true}
-                label='Register'
-              ></Route>
-              <Route
-                path={`/`}
+                key={profileIndex}
+                path={`/${profileUser.userName}`}
                 render={() => (
-                  <Feed
+                  <Profile
+                    profileUser={profileUser}
                     users={users}
+                    profileIndex={profileIndex}
                     setusers={setusers}
                     posts={posts}
                     setposts={setposts}
-                    posted={posted}
-                    setposted={setposted}
                   />
                 )}
                 exact={true}
-                label='Feed'
+                label='Profile'
               ></Route>
-              {users.map((profileUser, profileIndex) => (
-                <Route
-                  key={profileIndex}
-                  path={`/${profileUser.userName}`}
-                  render={() => (
-                    <Profile
-                      profileUser={profileUser}
-                      users={users}
-                      profileIndex={profileIndex}
-                      setusers={setusers}
-                      posts={posts}
-                      setposts={setposts}
-                    />
-                  )}
-                  exact={true}
-                  label='Profile'
-                ></Route>
-              ))}
-              <Route
-                path={`/AccountSettings`}
-                render={() => (
-                  <ProfileSettings users={users} setusers={setusers} />
-                )}
-                exact={true}
-                label='settings'
-              ></Route>
-            </UsersContext.Provider>
-          </UserContext.Provider>
-        </PostsContext.Provider>
-      </Switch>
-    </BrowserRouter>
+            ))}
+            <Route
+              path={`/AccountSettings`}
+              render={() => (
+                <ProfileSettings users={users} setusers={setusers} />
+              )}
+              exact={true}
+              label='settings'
+            ></Route>
+          </UsersContext.Provider>
+        </UserContext.Provider>
+      </PostsContext.Provider>
+    </Switch>
   )
 }
 

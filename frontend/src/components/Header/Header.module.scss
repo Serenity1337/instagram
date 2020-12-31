@@ -67,12 +67,13 @@ header {
 .icons {
   display: flex;
   justify-content: space-between;
-  width: 160px;
+  width: 260px;
   padding-left: 18px;
   margin-right: 150px;
   cursor: pointer;
   a {
     color: #111111;
+    text-decoration: none;
   }
 }
 .searchBar {

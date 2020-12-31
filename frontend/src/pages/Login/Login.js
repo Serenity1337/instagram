@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react'
 import classes from './Login.module.scss'
 import { Link } from 'react-router-dom'
+import { postRequest } from '../../api'
 export const Login = () => {
   const [emailInput, setemailInput] = useState('')
   const [errorState, seterrorState] = useState(false)
@@ -25,41 +26,21 @@ export const Login = () => {
     userId
     token
   }
-}`
+}`,
     }
 
-    fetch('http://localhost:8000/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
+    postRequest(requestBody)
       .then((header) => {
-        console.log(header)
-        if (header.ok) {
-          return header.json()
-        } else {
-
-          console.log('error')
-        }
+        return header.json()
       })
       .then((response) => {
-        console.log(response)
         if (response.data.login === null) {
           seterrorState(true)
         } else {
           localStorage.setItem('token', JSON.stringify(response.data.login))
           window.location.href = `http://localhost:3000/`
         }
-
       })
-      .catch((e) => {
-        console.log(e)
-      })
-
-
-
   }
   return (
     <>

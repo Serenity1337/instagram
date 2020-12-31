@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react'
 import classes from './Register.module.scss'
 import { Link } from 'react-router-dom'
 import { UserContext } from '../../userContext'
+import { postRequest } from '../../api'
 
 export const Register = () => {
   const [emailInput, setemailInput] = useState('')
@@ -70,21 +71,7 @@ export const Register = () => {
       }`,
       }
 
-      fetch('http://localhost:8000/graphql', {
-        method: 'POST',
-        body: JSON.stringify(requestBody),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-        .then((header) => {
-          console.log(header)
-          if (header.ok) {
-            return header.json()
-          } else {
-            alert('Registration failed')
-          }
-        })
+      postRequest(requestBody)
         .then((response) => {
           if (response.data.createUser !== null) {
             window.location.href = 'http://localhost:3000/login'

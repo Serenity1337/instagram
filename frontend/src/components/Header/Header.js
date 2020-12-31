@@ -2,8 +2,10 @@ import React, { useState, useEffect, useContext } from 'react'
 import classes from './Header.module.scss'
 import axios from 'axios'
 import { UserContext } from '../../userContext'
+import { UsersContext } from '../../usersContext'
 import { constructDate } from '../../functions'
 import { Link } from 'react-router-dom'
+import { postRequest } from '../../api'
 
 export const Header = (props) => {
   const [postFormState, setpostFormState] = useState(false)
@@ -14,62 +16,17 @@ export const Header = (props) => {
 
   const { user, setuser } = useContext(UserContext)
 
-  const [users, setusers] = useState([])
+  const { users, setusers } = useContext(UsersContext)
 
   const [filteredUsers, setfilteredUsers] = useState([])
 
-  useEffect(() => {
-    let requestBody = {
-      query: `query {
-        users {
-          _id
-         userName
-          email
-          avatar
-          followedBy
-          following
-          bio
-          gender
-          phoneNumber
-          fullName
-          posts {
-            _id
-            caption
-            picture
-            likedBy
-            date
-          }
-          
-        }
-      }`,
-    }
-
-    fetch('http://localhost:8000/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((header) => {
-        console.log(header)
-        if (header.ok) {
-          return header.json()
-        } else {
-          console.log('error')
-        }
-      })
-      .then((response) => {
-        setusers(response.data.users)
-      })
-      .catch((e) => {
-        console.log(e)
-      })
-  }, [])
   const postHandler = () => {
     setpostFormState(true)
   }
 
+  const logoutHandler = () => {
+    localStorage.removeItem('token')
+  }
   const searchFilterHandler = (event) => {
     if (!event.target.value) {
       setfilteredUsers([])
@@ -88,7 +45,6 @@ export const Header = (props) => {
       setfilteredUsers(displayUsers)
     }
   }
-
   const onChangeHandler = (event) => {
     setfileState(event.target.files[0])
   }
@@ -130,21 +86,15 @@ export const Header = (props) => {
         }
       }`,
     }
-    const postsArr = [...props.posts, post]
-    fetch('http://localhost:8000/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then((header) => {
-      if (header.ok) {
+
+    postRequest(requestBody).then((response) => {
+      if (response) {
+        console.log(response)
+        const postsArr = [...props.posts, post]
+
         setpostFormState(false)
 
         props.setposts(postsArr)
-        return header.json()
-      } else {
-        console.log(header)
       }
     })
   }
@@ -231,9 +181,14 @@ export const Header = (props) => {
             <i className='far fa-heart'></i>
           </span>
 
-          {user !== null ? (<Link to={`/${user.userName}`}>
-            <i className='far fa-user'></i>
-          </Link>): null}
+          {user !== null ? (
+            <Link to={`/${user.userName}`}>
+              <i className='far fa-user'></i>
+            </Link>
+          ) : null}
+          <Link to={`/login`} onClick={logoutHandler}>
+            Logout
+          </Link>
         </div>
       </div>
     </header>

@@ -2,12 +2,17 @@ import React, { useState, useEffect, useContext } from 'react'
 import classes from './Reply.module.scss'
 import { UserContext } from '../../userContext'
 import { constructDate } from '../../functions'
+import { PostsContext } from '../../postsContext'
+import { UsersContext } from '../../usersContext'
+import { postRequest } from '../../api'
 export const Reply = (props) => {
   const [commentLiked, setcommentLiked] = useState(false)
   const [replyState, setreplyState] = useState(false)
   const [replyFocusState, setreplyFocusState] = useState(false)
   const [replyMsg, setreplyMsg] = useState('')
   const { user, setuser } = useContext(UserContext)
+  const { posts, setposts } = useContext(PostsContext)
+  const { users, setusers } = useContext(UsersContext)
   const replyInput = React.createRef()
   useEffect(() => {
     const usersWhoLikedCommArr = [...props.reply.likedBy]
@@ -19,7 +24,7 @@ export const Reply = (props) => {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.users])
+  }, [users])
 
   // function for liking a reply
   const replyLikeBtnHandler = () => {
@@ -31,14 +36,13 @@ export const Reply = (props) => {
       ...commentClone.replies[props.replyIndex].likedBy,
       user._id,
     ]
-
     commentsClone[props.commentIndex] = commentClone
 
     postClone.comments = commentsClone
 
     const arr = JSON.stringify(commentClone.replies[props.replyIndex].likedBy)
 
-    const allPosts = [...props.posts]
+    const allPosts = [...posts]
     allPosts[props.index] = postClone
 
     let requestBody = {
@@ -58,19 +62,8 @@ export const Reply = (props) => {
 
     setcommentLiked(true)
 
-    fetch('http://localhost:8000/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then((header) => {
-      if (header.ok) {
-        props.setposted(allPosts)
-        return header.json()
-      } else {
-        console.log(header)
-      }
+    postRequest(requestBody).then((response) => {
+      if (response) props.setposted(allPosts)
     })
   }
 
@@ -85,13 +78,11 @@ export const Reply = (props) => {
     )
     commentClone.replies[props.replyIndex].likedBy = userLikedArr
 
-    commentClone.replies[props.replyIndex].likes -= 1
-
     commentsClone[props.commentIndex] = commentClone
 
     postClone.comments = commentsClone
 
-    const allPosts = [...props.posts]
+    const allPosts = [...posts]
 
     allPosts[props.index] = postClone
 
@@ -114,19 +105,8 @@ export const Reply = (props) => {
 
     setcommentLiked(false)
 
-    fetch('http://localhost:8000/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then((header) => {
-      if (header.ok) {
-        props.setposted(allPosts)
-        return header.json()
-      } else {
-        console.log(header)
-      }
+    postRequest(requestBody).then((response) => {
+      if (response) props.setposted(allPosts)
     })
   }
 
@@ -157,7 +137,7 @@ export const Reply = (props) => {
       comment: props.comment._id,
       date: constructDate(),
     }
-
+    console.log('asd')
     const requestBody = {
       query: `mutation {
         createReply(replyInput: {
@@ -172,24 +152,14 @@ export const Reply = (props) => {
         }
       }`,
     }
-
+    const allPosts = [...posts]
     const repliesArr = [...props.comment.replies, newComment]
     const postCopy = { ...props.post }
     postCopy.comments[props.commentIndex].replies = repliesArr
+    allPosts[props.index] = postCopy
 
-    fetch('http://localhost:8000/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then((header) => {
-      if (header.ok) {
-        props.setposted(postCopy)
-        return header.json()
-      } else {
-        console.log(header)
-      }
+    postRequest(requestBody).then((response) => {
+      if (response) props.setposted(allPosts)
     })
     replyInput.current.value = ''
   }

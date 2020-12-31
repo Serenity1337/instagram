@@ -4,8 +4,9 @@ import Postcomment from '../Postcomment'
 import { constructDate } from '../../functions'
 import { UserContext } from '../../userContext'
 import { PostsContext } from '../../postsContext'
+import { postRequest } from '../../api'
+
 export const Post = (props) => {
-  const [postUser, setpostUser] = useState({})
   const [comments, setcomments] = useState([])
   const [commentState, setcommentState] = useState('')
   const [liked, setliked] = useState(false)
@@ -25,10 +26,6 @@ export const Post = (props) => {
       setliked(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  useEffect(() => {
-    setcomments(props.post.comments)
   }, [posts])
 
   const commentInputHandler = (event) => {
@@ -64,19 +61,11 @@ export const Post = (props) => {
         }
       }`,
     }
-    fetch('http://localhost:8000/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then((header) => {
-      if (header.ok) {
+    postRequest(requestBody).then((response) => {
+      if (response) {
         props.setposted(allPosts)
         setposts(allPosts)
-        return header.json()
-      } else {
-        console.log(header)
+        props.setposted(allPosts)
       }
     })
     commentInput.current.value = ''
@@ -90,6 +79,7 @@ export const Post = (props) => {
     const allposts = [...props.posts]
     allposts[props.index] = postClone
     const arr = JSON.stringify(userLikedArr)
+
     let requestBody = {
       query: `mutation {
         postUpdate(postUpdateInput: {
@@ -101,23 +91,10 @@ export const Post = (props) => {
         }
       }`,
     }
-
-    fetch('http://localhost:8000/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then((header) => {
-      if (header.ok) {
-        // props.setposts(allposts)
-        // props.setposted(allposts)
-        // props.setpostposted(allposts)
+    postRequest(requestBody).then((response) => {
+      if (response) {
         setposts(allposts)
-        // props.setposted(allposts)
-        return header.json()
-      } else {
-        console.log(header)
+        props.setposted(allposts)
       }
     })
   }
@@ -144,22 +121,10 @@ export const Post = (props) => {
         }
       }`,
     }
-
-    fetch('http://localhost:8000/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then((header) => {
-      if (header.ok) {
-        // props.setposts(allposts)
-        // props.setposted(allposts)
-        // props.setpostposted(allposts)
+    postRequest(requestBody).then((response) => {
+      if (response) {
         setposts(allposts)
-        return header.json()
-      } else {
-        console.log(header)
+        props.setposted(allposts)
       }
     })
   }

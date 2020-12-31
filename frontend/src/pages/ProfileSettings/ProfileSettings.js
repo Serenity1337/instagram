@@ -3,21 +3,17 @@ import { UserContext } from '../../userContext'
 import classes from './ProfileSettings.module.scss'
 import Header from '../../components/Header'
 import Axios from 'axios'
+import { PostsContext } from '../../postsContext'
+import { UsersContext } from '../../usersContext'
+import { postRequest } from '../../api'
 
 export const ProfileSettings = (props) => {
   //states
   const { user, setuser } = useContext(UserContext)
-  const [oldPass, setoldPass] = useState('')
-  const [newPass, setnewPass] = useState('')
-  const [rnewPass, setrnewPass] = useState('')
-  const [posts, setposts] = useState([])
+  const { users, setusers } = useContext(UsersContext)
+  const [profileInfo, setprofileInfo] = useState({})
+  const { posts, setposts } = useContext(PostsContext)
   const [profile, setprofile] = useState(true)
-  const [name, setname] = useState('')
-  const [userName, setuserName] = useState('')
-  const [bio, setbio] = useState('')
-  const [email, setemail] = useState('')
-  const [phone, setphone] = useState('')
-  const [gender, setgender] = useState('')
   const [emailError, setemailError] = useState(false)
   const [userNameError, setuserNameError] = useState(false)
   const [passwordError, setpasswordError] = useState('')
@@ -39,78 +35,6 @@ export const ProfileSettings = (props) => {
 
   //fetch posts
   useEffect(() => {
-    let requestBody = {
-      query: `query {
-        posts {
-          _id
-          caption
-          picture
-          likedBy
-          poster {
-            _id
-            userName
-            email
-            avatar
-            followedBy
-            following
-          }
-          comments {
-            _id
-            caption
-            likedBy
-            poster {
-              _id
-            userName
-            email
-            avatar
-            followedBy
-            following
-            }
-            replies {
-              _id
-              caption
-              likedBy
-              date
-              poster {
-                _id
-              userName
-              email
-              avatar
-              followedBy
-              following
-              }
-            }
-            date
-            
-          }
-          
-        }
-      }`,
-    }
-
-    fetch('http://localhost:8000/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((header) => {
-        console.log(header)
-        if (header.ok) {
-          return header.json()
-        } else {
-          console.log('error')
-        }
-      })
-      .then((response) => {
-        setposts(response.data.posts)
-      })
-      .catch((e) => {
-        console.log(e)
-        throw e
-      })
-
     const token = JSON.parse(localStorage.getItem('token'))
     if (token === null) {
       window.location.href = 'http://localhost:3000/login'
@@ -119,32 +43,8 @@ export const ProfileSettings = (props) => {
   //fetch posts
 
   //input state handlers
-  const userNameHandler = (event) => {
-    setuserName(event.target.value)
-  }
-  const bioHandler = (event) => {
-    setbio(event.target.value)
-  }
-  const emailHandler = (event) => {
-    setemail(event.target.value)
-  }
-  const phoneHandler = (event) => {
-    setphone(event.target.value)
-  }
-  const nameHandler = (event) => {
-    setname(event.target.value)
-  }
-  const genderHandler = (event) => {
-    setgender(event.target.value)
-  }
-  const oldPassHandler = (event) => {
-    setoldPass(event.target.value)
-  }
-  const newPassHandler = (event) => {
-    setnewPass(event.target.value)
-  }
-  const rNewPassHandler = (event) => {
-    setrnewPass(event.target.value)
+  const profileInputHandler = (event) => {
+    setprofileInfo({ ...profileInfo, [event.target.name]: event.target.value })
   }
   const changePasswordRender = () => {
     setchangePassword(true)
@@ -164,62 +64,62 @@ export const ProfileSettings = (props) => {
     let phoneCopy = ''
     let genderCopy = ''
     let emailCopy = ''
-    let allUsers = [...props.users]
-    let userCopy = user
+    let allUsers = [...users]
+    let userCopy = { ...user }
 
-    if (!userName) {
+    if (!profileInfo.userName) {
       if (!user.userName) {
         userNameCopy = ''
       } else {
         userNameCopy = user.userName
       }
     } else {
-      userNameCopy = userName
+      userNameCopy = profileInfo.userName
     }
-    if (!name) {
+    if (!profileInfo.name) {
       if (!user.fullName) {
         nameCopy = ''
       } else {
         nameCopy = user.fullName
       }
     } else {
-      nameCopy = name
+      nameCopy = profileInfo.name
     }
-    if (!bio) {
+    if (!profileInfo.bio) {
       if (!user.bio) {
         bioCopy = ''
       } else {
         bioCopy = user.bio
       }
     } else {
-      bioCopy = bio
+      bioCopy = profileInfo.bio
     }
-    if (!phone) {
+    if (!profileInfo.phone) {
       if (!user.phoneNumber) {
         phoneCopy = ''
       } else {
         phoneCopy = user.phoneNumber
       }
     } else {
-      phoneCopy = phone
+      phoneCopy = profileInfo.phone
     }
-    if (!email) {
+    if (!profileInfo.email) {
       if (!user.email) {
         emailCopy = ''
       } else {
         emailCopy = user.email
       }
     } else {
-      emailCopy = email
+      emailCopy = profileInfo.email
     }
-    if (!gender) {
+    if (!profileInfo.gender) {
       if (!user.gender) {
         genderCopy = ''
       } else {
         genderCopy = user.gender
       }
     } else {
-      genderCopy = gender
+      genderCopy = profileInfo.gender
     }
 
     userCopy.userName = userNameCopy
@@ -254,51 +154,33 @@ export const ProfileSettings = (props) => {
         }`,
     }
 
-    fetch('http://localhost:8000/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((header) => {
-        if (header.ok) {
-          console.log(header)
-          props.setusers(allUsers)
-          setuser(userCopy)
-          return header.json()
+    postRequest(requestBody).then((response) => {
+      if (response.errors) {
+        if (response.errors[0].message.includes('User')) {
+          setuserNameError(true)
         } else {
-          console.log(header)
-        }
-      })
-      .then((response) => {
-        if (response.errors) {
-          if (response.errors[0].message.includes('User')) {
-            setuserNameError(true)
-          } else {
-            setuserNameError(false)
-          }
-          if (response.errors[0].message.includes('Email')) {
-            setemailError(true)
-          } else {
-            setemailError(false)
-          }
-        } else {
-          setemailError(false)
           setuserNameError(false)
         }
-      })
+        if (response.errors[0].message.includes('Email')) {
+          setemailError(true)
+        } else {
+          setemailError(false)
+        }
+      } else {
+        setemailError(false)
+        setuserNameError(false)
+      }
+    })
   }
   //edit profile handler
 
   //change password handler
   const passwordChangeHandler = () => {
-
     setpasswordError('')
-    if (newPass.length < 3) {
+    if (profileInfo.newPass.length < 3) {
       setpasswordError('New password needs to be atleast 3 characters')
     } else {
-      if (newPass !== rnewPass) {
+      if (profileInfo.newPass !== profileInfo.rnewPass) {
         setpasswordError('Please make sure you repeated the password correctly')
       }
     }
@@ -307,8 +189,8 @@ export const ProfileSettings = (props) => {
       mutation {
         passwordUpdate(userPassUpdateInput: {
       
-        oldPass: "${oldPass}"
-        newPass: "${newPass}"
+        oldPass: "${profileInfo.oldPass}"
+        newPass: "${profileInfo.newPass}"
         id: "${user._id}"
         })
         {
@@ -317,30 +199,15 @@ export const ProfileSettings = (props) => {
       }
       `,
     }
-    fetch('http://localhost:8000/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((header) => {
-        if (header.ok) {
-          console.log(header)
-          return header.json()
+    postRequest(requestBody).then((response) => {
+      if (response.errors) {
+        if (response.errors[0].message.includes('Old')) {
+          passwordError('Old password is incorrect')
         } else {
-          console.log(header)
+          passwordError('')
         }
-      })
-      .then((response) => {
-        if (response.errors) {
-          if (response.errors[0].message.includes('Old')) {
-            passwordError('Old password is incorrect')
-          } else {
-            passwordError('')
-          }
-        }
-      })
+      }
+    })
   }
   //change password handler
 
@@ -349,8 +216,7 @@ export const ProfileSettings = (props) => {
   const changeAvatar = (event) => {
     const data = new FormData()
     data.append('file', event.target.files[0])
-    Axios.post('http://localhost:8000/upload2', data, {}).then((res) => {
-    })
+    Axios.post('http://localhost:8000/upload2', data, {}).then((res) => {})
     const userClone = { ...user }
     userClone.avatar = event.target.files[0].name
     const allUsers = [...props.users]
@@ -372,18 +238,10 @@ export const ProfileSettings = (props) => {
         }
       `,
     }
-    fetch('http://localhost:8000/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'COntent-Type': 'application/json',
-      },
-    }).then((header) => {
-      if (header.ok) {
-        props.setusers(allUsers)
+    postRequest(requestBody).then((response) => {
+      if (response) {
+        setusers(allUsers)
         setuser(userClone)
-      } else {
-        console.log(header)
       }
     })
   }
@@ -396,15 +254,17 @@ export const ProfileSettings = (props) => {
       <div className={classes.settings}>
         <div className={classes.sideBar}>
           <div
-            className={`${classes.editProfile} ${profile ? classes.active : null
-              }`}
+            className={`${classes.editProfile} ${
+              profile ? classes.active : null
+            }`}
             onClick={changeProfileRender}
           >
             Edit Profile
           </div>
           <div
-            className={`${classes.changePassword} ${changePassword ? classes.active : null
-              }`}
+            className={`${classes.changePassword} ${
+              changePassword ? classes.active : null
+            }`}
             onClick={changePasswordRender}
           >
             Change Password
@@ -431,7 +291,7 @@ export const ProfileSettings = (props) => {
                 />
               </div>
               <span className={classes.nameUser}>
-                {name.length === 0 ? user.fullName : name}
+                {!profileInfo.name ? user.fullName : profileInfo.name}
               </span>
             </div>
             <div className={classes.name}>
@@ -447,7 +307,7 @@ export const ProfileSettings = (props) => {
                 type='text'
                 // value={user.userName || ''}
                 defaultValue={user.fullName}
-                onChange={nameHandler}
+                onChange={profileInputHandler}
                 name='name'
                 ref={nameInput}
               />
@@ -465,7 +325,7 @@ export const ProfileSettings = (props) => {
                 type='text'
                 // value={user.userName || ''}
                 defaultValue={user.userName}
-                onChange={userNameHandler}
+                onChange={profileInputHandler}
                 name='userName'
                 ref={userNameInput}
               />
@@ -486,7 +346,7 @@ export const ProfileSettings = (props) => {
                 type='text'
                 // value={user.userName || ''}
                 defaultValue={user.bio}
-                onChange={bioHandler}
+                onChange={profileInputHandler}
                 name='bio'
                 ref={bioInput}
               />
@@ -502,9 +362,8 @@ export const ProfileSettings = (props) => {
               </label>
               <input
                 type='email'
-                // value={user.userName || ''}
                 defaultValue={user.email}
-                onChange={emailHandler}
+                onChange={profileInputHandler}
                 name='email'
                 ref={emailInput}
               />
@@ -525,7 +384,7 @@ export const ProfileSettings = (props) => {
                 type='text'
                 // value={user.userName || ''}
                 defaultValue={user.phoneNumber}
-                onChange={phoneHandler}
+                onChange={profileInputHandler}
                 name='phone'
                 ref={phoneInput}
               />
@@ -542,7 +401,7 @@ export const ProfileSettings = (props) => {
               <input
                 type='text'
                 defaultValue={user.gender}
-                onChange={genderHandler}
+                onChange={profileInputHandler}
                 name='gender'
                 ref={genderInput}
               />
@@ -574,7 +433,7 @@ export const ProfileSettings = (props) => {
                 />
               </div>
               <span className={classes.nameUser}>
-                {name.length === 0 ? user.fullName : name}
+                {!profileInfo.name ? user.fullName : profileInfo.name}
               </span>
             </div>
 
@@ -589,7 +448,7 @@ export const ProfileSettings = (props) => {
               </label>
               <input
                 type='password'
-                onChange={oldPassHandler}
+                onChange={profileInputHandler}
                 name='oldPass'
                 ref={oldPassInput}
               />
@@ -605,7 +464,7 @@ export const ProfileSettings = (props) => {
               </label>
               <input
                 type='password'
-                onChange={newPassHandler}
+                onChange={profileInputHandler}
                 name='newPass'
                 ref={newPassInput}
               />
@@ -622,7 +481,7 @@ export const ProfileSettings = (props) => {
               </label>
               <input
                 type='password'
-                onChange={rNewPassHandler}
+                onChange={profileInputHandler}
                 name='rnewPass'
                 ref={rnewPassInput}
               />

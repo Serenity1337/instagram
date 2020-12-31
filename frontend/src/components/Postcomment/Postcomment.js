@@ -3,16 +3,30 @@ import classes from './Postcomment.module.scss'
 import { Reply } from '../Reply/Reply'
 import { UserContext } from '../../userContext'
 import { constructDate } from '../../functions'
+import { postRequest } from '../../api'
+import { PostsContext } from '../../postsContext'
+
 export const Postcomment = (props) => {
   const [commentLiked, setcommentLiked] = useState(false)
+
   const [replyState, setreplyState] = useState(false)
+
   const [replyFocusState, setreplyFocusState] = useState(false)
+
   const [replyMsg, setreplyMsg] = useState('')
+
   const [commentReplies, setcommentReplies] = useState([])
+
   const [showReplies, setshowReplies] = useState(false)
+
   const [replyCount, setreplyCount] = useState(Number)
+
   const replyCommInput = React.createRef()
+
   const { user, setuser } = useContext(UserContext)
+
+  const { posts, setposts } = useContext(PostsContext)
+
   useEffect(() => {
     const usersWhoLikedCommArr = [...props.comment.likedBy]
     const found = usersWhoLikedCommArr.includes(`${user._id}`)
@@ -27,7 +41,7 @@ export const Postcomment = (props) => {
 
   useEffect(() => {
     setcommentReplies(props.comment.replies)
-  }, [props.comment.replies])
+  }, [posts])
 
   // function for liking a comment
   const comLikeBtnHandler = () => {
@@ -62,18 +76,10 @@ export const Postcomment = (props) => {
 
     setcommentLiked(true)
 
-    fetch('http://localhost:8000/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then((header) => {
-      if (header.ok) {
+    postRequest(requestBody).then((response) => {
+      if (response) {
+        setposts(allPosts)
         props.setposted(allPosts)
-        return header.json()
-      } else {
-        console.log(header)
       }
     })
   }
@@ -114,19 +120,10 @@ export const Postcomment = (props) => {
 
     setcommentLiked(false)
 
-    fetch('http://localhost:8000/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then((header) => {
-      if (header.ok) {
+    postRequest(requestBody).then((response) => {
+      if (response) {
         props.setposted(allPosts)
-        // setreplyCount(commentClone.replies.length)
-        return header.json()
-      } else {
-        console.log(header)
+        setposts(allPosts)
       }
     })
   }
@@ -180,20 +177,8 @@ export const Postcomment = (props) => {
     const allPosts = [...props.posts]
     allPosts[props.index] = postCopy
 
-    fetch('http://localhost:8000/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then((header) => {
-      console.log(header)
-      if (header.ok) {
-        props.setposted(allPosts)
-        return header.json()
-      } else {
-        console.log(header)
-      }
+    postRequest(requestBody).then((response) => {
+      if (response) props.setposted(allPosts)
     })
     replyCommInput.current.value = ''
   }
@@ -234,8 +219,6 @@ export const Postcomment = (props) => {
           reply={reply}
           replyIndex={replyIndex}
           post={props.post}
-          posts={props.posts}
-          setposts={props.setposts}
           comments={props.comments}
           setcomments={props.setcomments}
           commentReplies={commentReplies}

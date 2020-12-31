@@ -92,7 +92,7 @@ export const Feed = (props) => {
 
   return (
     <>
-      <Header posts={posts} setposts={setposts} />
+      {/* <Header posts={posts} setposts={setposts} /> */}
       {/* <header>
         {postFormState ? (
           <div className={classes.background}>
