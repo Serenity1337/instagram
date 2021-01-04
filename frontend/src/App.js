@@ -246,13 +246,14 @@ function App() {
     const token = JSON.parse(localStorage.getItem('token'))
     if (token === null && window.location.pathname !== '/login') {
       if (window.location.pathname !== '/register') {
-        window.location.href = 'http://localhost:3000/login'
+        window.location.href = '/login'
       }
     }
-  }, [])
+  }, [posted])
   // useEffect(() => {
 
   // }, [user])
+  console.log(location)
   return (
     <Switch>
       <PostsContext.Provider value={postsValue}>
@@ -260,7 +261,7 @@ function App() {
           <UsersContext.Provider value={usersValue}>
             {location.pathname == '/register' ||
             location.pathname == '/login' ? null : (
-              <Header users={users} setusers={setusers} />
+              <Header setposted={setposted} />
             )}
             <Route
               path={`/login`}
@@ -301,6 +302,7 @@ function App() {
                     setusers={setusers}
                     posts={posts}
                     setposts={setposts}
+                    setposted={setposted}
                   />
                 )}
                 exact={true}
@@ -310,7 +312,11 @@ function App() {
             <Route
               path={`/AccountSettings`}
               render={() => (
-                <ProfileSettings users={users} setusers={setusers} />
+                <ProfileSettings
+                  users={users}
+                  setusers={setusers}
+                  setposted={setposted}
+                />
               )}
               exact={true}
               label='settings'

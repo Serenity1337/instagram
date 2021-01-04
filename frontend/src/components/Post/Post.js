@@ -139,7 +139,7 @@ export const Post = (props) => {
             className={classes.smImg}
           />
           <div className={classes.cardUsername}>
-            {props.post.poster.userName}
+            {props.post.poster.userName ? props.post.poster.userName : null}
           </div>
         </div>
         <img

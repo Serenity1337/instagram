@@ -3,8 +3,9 @@ import classes from './Header.module.scss'
 import axios from 'axios'
 import { UserContext } from '../../userContext'
 import { UsersContext } from '../../usersContext'
+import { PostsContext } from '../../postsContext'
 import { constructDate } from '../../functions'
-import { Link } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import { postRequest } from '../../api'
 
 export const Header = (props) => {
@@ -17,6 +18,8 @@ export const Header = (props) => {
   const { user, setuser } = useContext(UserContext)
 
   const { users, setusers } = useContext(UsersContext)
+
+  const { posts, setposts } = useContext(PostsContext)
 
   const [filteredUsers, setfilteredUsers] = useState([])
 
@@ -65,7 +68,7 @@ export const Header = (props) => {
     const post = {
       picture: fileState.name,
       caption: captionState,
-      poster: user._id,
+      poster: user.userName,
       likedBy: [],
       date: constructDate(),
       comments: [],
@@ -90,11 +93,13 @@ export const Header = (props) => {
     postRequest(requestBody).then((response) => {
       if (response) {
         console.log(response)
-        const postsArr = [...props.posts, post]
+        const postsArr = [post, ...posts]
 
         setpostFormState(false)
 
-        props.setposts(postsArr)
+        setposts(postsArr)
+
+        props.setposted(postsArr)
       }
     })
   }

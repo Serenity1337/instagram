@@ -38,10 +38,11 @@ export const Login = () => {
           seterrorState(true)
         } else {
           localStorage.setItem('token', JSON.stringify(response.data.login))
-          window.location.href = `http://localhost:3000/`
+          window.location.href = `https://copygram-3f03b.web.app/`
         }
       })
   }
+  console.log('testing')
   return (
     <>
       <div className={classes.container}>

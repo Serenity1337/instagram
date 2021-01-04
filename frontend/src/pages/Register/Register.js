@@ -71,26 +71,30 @@ export const Register = () => {
       }`,
       }
 
-      postRequest(requestBody)
-        .then((response) => {
-          if (response.data.createUser !== null) {
-            window.location.href = 'http://localhost:3000/login'
-          } else {
-            console.log(response.errors[0].message)
-            if (response.errors[0].message.includes('Email')) {
-              setemailErrorstate(true)
-              setnameErrorstate(false)
+      postRequest(requestBody).then((header) => {
+        return header
+          .json()
+          .then((response) => {
+            console.log(response)
+            if (response) {
+              window.location.href = '/login'
             } else {
-              setnameErrorstate(true)
-              setemailErrorstate(false)
+              console.log(response.errors[0].message)
+              if (response.errors[0].message.includes('Email')) {
+                setemailErrorstate(true)
+                setnameErrorstate(false)
+              } else {
+                setnameErrorstate(true)
+                setemailErrorstate(false)
+              }
             }
-          }
 
-          // alert('Registration successful')
-        })
-        .catch((e) => {
-          console.log(e)
-        })
+            // alert('Registration successful')
+          })
+          .catch((e) => {
+            console.log(e)
+          })
+      })
       // console.log(response)
     }
   }

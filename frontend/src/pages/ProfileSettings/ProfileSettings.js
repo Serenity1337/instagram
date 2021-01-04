@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react'
 import { UserContext } from '../../userContext'
 import classes from './ProfileSettings.module.scss'
-import Header from '../../components/Header'
 import Axios from 'axios'
 import { PostsContext } from '../../postsContext'
 import { UsersContext } from '../../usersContext'
@@ -250,7 +249,6 @@ export const ProfileSettings = (props) => {
 
   return (
     <div>
-      <Header posts={posts} />
       <div className={classes.settings}>
         <div className={classes.sideBar}>
           <div

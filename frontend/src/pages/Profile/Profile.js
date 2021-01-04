@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react'
 import { UserContext } from '../../userContext'
-import Header from '../../components/Header'
 import classes from './Profile.module.scss'
 import { Link } from 'react-router-dom'
 
@@ -8,86 +7,6 @@ export const Profile = (props) => {
   const { user, setuser } = useContext(UserContext)
   const [following, setfollowing] = useState(false)
   useEffect(() => {
-    //   // fetching posts
-    //   let requestBody = {
-    //     query: `query {
-    //       posts {
-    //         _id
-    //         caption
-    //         picture
-    //         likedBy
-    //         poster {
-    //           _id
-    //           userName
-    //           email
-    //           avatar
-    //           followedBy
-    //           following
-    //         }
-    //         comments {
-    //           _id
-    //           caption
-    //           likedBy
-    //           poster {
-    //             _id
-    //           userName
-    //           email
-    //           avatar
-    //           followedBy
-    //           following
-    //           }
-    //           replies {
-    //             _id
-    //             caption
-    //             likedBy
-    //             date
-    //             poster {
-    //               _id
-    //             userName
-    //             email
-    //             avatar
-    //             followedBy
-    //             following
-    //             }
-    //           }
-    //           date
-
-    //         }
-
-    //       }
-    //     }`,
-    //   }
-
-    //   fetch('http://localhost:8000/graphql', {
-    //     method: 'POST',
-    //     body: JSON.stringify(requestBody),
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //   })
-    //     .then((header) => {
-    //       console.log(header)
-    //       if (header.ok) {
-    //         return header.json()
-    //       } else {
-    //         console.log('error')
-    //       }
-    //     })
-    //     .then((response) => {
-    //       setposts(response.data.posts)
-    //     })
-    //     .catch((e) => {
-    //       console.log(e)
-    //       throw e
-    //     })
-
-    const checkIfLoggedIn = () => {
-      if (!user) {
-        window.location.href = 'http://localhost:3000/login'
-      }
-    }
-    checkIfLoggedIn()
-
     const isFollowing = props.profileUser.followedBy.includes(user._id)
 
     isFollowing ? setfollowing(true) : setfollowing(false)
@@ -97,7 +16,6 @@ export const Profile = (props) => {
     const loggedInUser = { ...user }
 
     const profileUser = { ...props.profileUser }
-
 
     // creating a clone of logged in user
 
@@ -141,7 +59,7 @@ export const Profile = (props) => {
     }).then((header) => {
       if (header.ok) {
         setuser(loggedInUser)
-
+        props.setposted(loggedInUser)
         return header.json()
       } else {
         console.log(header)
@@ -195,6 +113,7 @@ export const Profile = (props) => {
       if (header.ok) {
         props.setusers(allUsers)
         setfollowing(true)
+        props.setposted(loggedInUser)
 
         return header.json()
       } else {
@@ -207,7 +126,6 @@ export const Profile = (props) => {
     const loggedInUser = { ...user }
 
     const profileUser = { ...props.profileUser }
-
 
     // creating a clone of logged in user
 
@@ -253,6 +171,7 @@ export const Profile = (props) => {
     }).then((header) => {
       if (header.ok) {
         setuser(loggedInUser)
+        props.setposted(loggedInUser)
 
         return header.json()
       } else {
@@ -309,6 +228,7 @@ export const Profile = (props) => {
       if (header.ok) {
         props.setusers(allUsers)
         setfollowing(false)
+        props.setposted(loggedInUser)
 
         return header.json()
       } else {
@@ -318,7 +238,6 @@ export const Profile = (props) => {
   }
   return (
     <div>
-      <Header posts={props.posts} setposts={props.setposts} />
       <div className={classes.profile}>
         <div className={classes.profileSection}>
           <img
@@ -343,14 +262,14 @@ export const Profile = (props) => {
                     Follow{' '}
                   </div>
                 ) : (
-                    <div
-                      className={classes.followBtn}
-                      onClick={unFollowBtnHandler}
-                    >
-                      {' '}
+                  <div
+                    className={classes.followBtn}
+                    onClick={unFollowBtnHandler}
+                  >
+                    {' '}
                     Unfollow{' '}
-                    </div>
-                  )
+                  </div>
+                )
               ) : null}
             </div>
             <div className={classes.secondRow}>
@@ -372,8 +291,8 @@ export const Profile = (props) => {
               />
             ))
           ) : (
-              <div className={classes.noPosts}> You currently have no posts </div>
-            )}
+            <div className={classes.noPosts}> You currently have no posts </div>
+          )}
         </div>
       </div>
     </div>
