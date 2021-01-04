@@ -253,7 +253,6 @@ function App() {
   // useEffect(() => {
 
   // }, [user])
-  console.log(location)
   return (
     <Switch>
       <PostsContext.Provider value={postsValue}>
